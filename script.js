@@ -490,7 +490,7 @@ function sendAllAlerts() {
     const pendingAlerts = currentAlerts.filter(alert => alert.status === 'pending');
     
     if (pendingAlerts.length === 0) {
-        alert('Aucune alerte en attente à envoyer.');
+        console.log('Aucune alerte en attente à envoyer.');
         sendButton.textContent = originalText;
         sendButton.disabled = false;
         return;
@@ -509,7 +509,7 @@ function sendAlertsInBatches(alerts, startIndex) {
         const sendButton = document.getElementById('send-alerts');
         sendButton.textContent = 'Envoyer Alertes Email';
         sendButton.disabled = false;
-        alert('Toutes les alertes ont été envoyées!');
+        console.log('Toutes les alertes ont été envoyées!');
         return;
     }
     
@@ -534,7 +534,7 @@ function sendAlertsInBatches(alerts, startIndex) {
             const sendButton = document.getElementById('send-alerts');
             sendButton.textContent = 'Envoyer Alertes Email';
             sendButton.disabled = false;
-            alert('Erreur lors de l\'envoi des alertes: ' + error.message);
+            console.error('Erreur lors de l\'envoi des alertes: ' + error.message);
         });
 }
 
