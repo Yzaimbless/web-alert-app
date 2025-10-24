@@ -132,10 +132,16 @@ function getRandomPriority() {
 
 function renderAlerts() {
     const alertsGrid = document.getElementById('alerts-grid');
+    if (!alertsGrid) return;
+    
     alertsGrid.innerHTML = '';
     
-    // Filter to show only status 30 alerts
-    const alertsToDisplay = status30Alerts.length > 0 ? status30Alerts : currentAlerts;
+    // Check which tab is currently active
+    const status30Tab = document.getElementById('status30');
+    const isStatus30TabActive = status30Tab && status30Tab.classList.contains('active');
+    
+    // Filter to show only status 30 alerts when Status 30 tab is active
+    const alertsToDisplay = (isStatus30TabActive && status30Alerts.length > 0) ? status30Alerts : currentAlerts;
     
     alertsToDisplay.forEach(alert => {
         const alertElement = createAlertElement(alert);
@@ -175,6 +181,7 @@ function updateStatus30Header() {
     
     const count = status30Alerts.length;
     
+    // Update header title if element exists
     if (headerTitle) {
         if (count > 0) {
             headerTitle.textContent = `Statut des Alertes (30) - ${count} alerte${count > 1 ? 's' : ''} trouvée${count > 1 ? 's' : ''}`;
@@ -183,11 +190,13 @@ function updateStatus30Header() {
         }
     }
     
-    // Show/hide summary based on count
-    if (summary && countText) {
+    // Show/hide summary based on count - with null checks
+    if (summary) {
         if (count > 0) {
             summary.style.display = 'block';
-            countText.textContent = `${count} alerte${count > 1 ? 's' : ''} avec statut 30 détectée${count > 1 ? 's' : ''}`;
+            if (countText) {
+                countText.textContent = `${count} alerte${count > 1 ? 's' : ''} avec statut 30 détectée${count > 1 ? 's' : ''}`;
+            }
         } else {
             summary.style.display = 'none';
         }
@@ -293,6 +302,8 @@ function processExcelFile() {
             // Switch to Status 30 tab to show results
             setTimeout(() => {
                 showTabByName('status30');
+                // Re-render to ensure proper filtering after tab switch
+                setTimeout(() => renderAlerts(), 100);
             }, 2000);
             
         } catch (error) {
@@ -313,6 +324,8 @@ function processExcelFile() {
         );
         setTimeout(() => {
             showTabByName('status30');
+            // Re-render to ensure proper filtering after tab switch
+            setTimeout(() => renderAlerts(), 100);
         }, 2000);
     }
 }
@@ -402,12 +415,20 @@ function generateAlertsFromData(data) {
     Object.keys(sheetData).forEach(sheetName => {
         const items = sheetData[sheetName];
         
-        // Check if sheet has status 30 items
-        const status30Items = items.filter(item => 
-            item.value.toLowerCase().includes('statut 30') || 
-            item.value.toLowerCase().includes('status 30') ||
-            item.value === '30'
-        );
+        // Check if sheet has status 30 items - more context-aware detection
+        const status30Items = items.filter(item => {
+            const value = item.value.toLowerCase();
+            // Check for explicit status 30 text
+            if (value.includes('statut 30') || value.includes('status 30')) {
+                return true;
+            }
+            // Check if value is exactly '30' and column name suggests it's a status column
+            // (Column D is typically the 4th column, often used for status in structured data)
+            if (item.value === '30' && (item.column === 'D' || item.column === 'E')) {
+                return true;
+            }
+            return false;
+        });
         
         // Create summary alert for sheet
         const sheetAlert = {
@@ -451,7 +472,9 @@ function generateAlertsFromData(data) {
         // Create alerts for high-value cells (containing specific keywords or numbers)
         items.forEach(item => {
             const value = item.value.toLowerCase();
-            const isStatus30 = value.includes('statut 30') || value.includes('status 30') || value === '30';
+            // More context-aware status 30 detection
+            const isStatus30 = value.includes('statut 30') || value.includes('status 30') || 
+                               (item.value === '30' && (item.column === 'D' || item.column === 'E'));
             
             if (!isStatus30 && (value.includes('urgent') || value.includes('important') || value.includes('critique') || 
                 value.includes('alerte') || value.includes('erreur') || /\d{4,}/.test(value))) {
