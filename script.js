@@ -1,5 +1,6 @@
 // Global variables
 let currentAlerts = [];
+let status30Alerts = []; // Specific alerts for status 30
 let emailConfig = {
     serviceId: '',
     templateId: '',
@@ -98,16 +99,29 @@ function initializeAlerts() {
 
 function generateDefaultAlerts() {
     currentAlerts = [];
+    status30Alerts = [];
+    
     for (let i = 1; i <= 30; i++) {
-        currentAlerts.push({
+        // Mark some default alerts as status 30 (about 30% of them)
+        const isStatus30 = Math.random() > 0.7;
+        const excelStatus = isStatus30 ? 30 : Math.floor(Math.random() * 40) + 10;
+        
+        const alert = {
             id: i,
             title: `Alerte ${i}`,
-            content: `Contenu de l'alerte numéro ${i} - Statut par défaut`,
+            content: `Contenu de l'alerte numéro ${i} - Statut par défaut${isStatus30 ? ' (Statut 30)' : ''}`,
             priority: getRandomPriority(),
             status: 'pending',
             timestamp: new Date().toISOString(),
-            source: 'default'
-        });
+            source: 'default',
+            isStatus30: isStatus30,
+            excelStatus: excelStatus
+        };
+        
+        currentAlerts.push(alert);
+        if (isStatus30) {
+            status30Alerts.push(alert);
+        }
     }
 }
 
@@ -120,18 +134,28 @@ function renderAlerts() {
     const alertsGrid = document.getElementById('alerts-grid');
     alertsGrid.innerHTML = '';
     
-    currentAlerts.forEach(alert => {
+    // Filter to show only status 30 alerts
+    const alertsToDisplay = status30Alerts.length > 0 ? status30Alerts : currentAlerts;
+    
+    alertsToDisplay.forEach(alert => {
         const alertElement = createAlertElement(alert);
         alertsGrid.appendChild(alertElement);
     });
+    
+    // Update the tab header with status 30 count
+    updateStatus30Header();
 }
 
 function createAlertElement(alert) {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert-item priority-${alert.priority}`;
+    
+    // Add status 30 badge if applicable
+    const status30Badge = alert.isStatus30 ? '<span class="status-30-badge">📌 STATUT 30</span>' : '';
+    
     alertDiv.innerHTML = `
         <div class="alert-header">
-            <div class="alert-title">${alert.title}</div>
+            <div class="alert-title">${alert.title} ${status30Badge}</div>
             <div class="alert-status status-${alert.status}">
                 ${getStatusText(alert.status)}
             </div>
@@ -142,6 +166,32 @@ function createAlertElement(alert) {
         </div>
     `;
     return alertDiv;
+}
+
+function updateStatus30Header() {
+    const headerTitle = document.querySelector('#status30 .tab-header h2');
+    const summary = document.getElementById('status30-summary');
+    const countText = document.getElementById('status30-count');
+    
+    const count = status30Alerts.length;
+    
+    if (headerTitle) {
+        if (count > 0) {
+            headerTitle.textContent = `Statut des Alertes (30) - ${count} alerte${count > 1 ? 's' : ''} trouvée${count > 1 ? 's' : ''}`;
+        } else {
+            headerTitle.textContent = 'Statut des Alertes (30)';
+        }
+    }
+    
+    // Show/hide summary based on count
+    if (summary && countText) {
+        if (count > 0) {
+            summary.style.display = 'block';
+            countText.textContent = `${count} alerte${count > 1 ? 's' : ''} avec statut 30 détectée${count > 1 ? 's' : ''}`;
+        } else {
+            summary.style.display = 'none';
+        }
+    }
 }
 
 function getStatusText(status) {
@@ -269,48 +319,65 @@ function processExcelFile() {
 
 function generateSampleExcelAlerts() {
     currentAlerts = [];
+    status30Alerts = [];
+    
     const sampleData = [
-        { sheet: 'Ventes', data: 'Commande urgente #12345', priority: 'high' },
-        { sheet: 'Inventory', data: 'Stock critique - Article A123', priority: 'high' },
-        { sheet: 'Clients', data: 'Nouveau client important', priority: 'medium' },
-        { sheet: 'Finances', data: 'Facture en retard - 5000€', priority: 'high' },
-        { sheet: 'Production', data: 'Maintenance programmée', priority: 'low' },
-        { sheet: 'RH', data: 'Formation obligatoire', priority: 'medium' },
-        { sheet: 'Qualité', data: 'Audit qualité prévu', priority: 'medium' },
-        { sheet: 'Logistics', data: 'Livraison express requise', priority: 'high' },
-        { sheet: 'Marketing', data: 'Campagne en cours', priority: 'low' },
-        { sheet: 'Support', data: 'Incident critique résolu', priority: 'medium' }
+        { sheet: 'Ventes', data: 'Commande urgente #12345', priority: 'high', status: 30 },
+        { sheet: 'Inventory', data: 'Stock critique - Article A123', priority: 'high', status: 30 },
+        { sheet: 'Clients', data: 'Nouveau client important', priority: 'medium', status: 20 },
+        { sheet: 'Finances', data: 'Facture en retard - 5000€', priority: 'high', status: 30 },
+        { sheet: 'Production', data: 'Maintenance programmée', priority: 'low', status: 10 },
+        { sheet: 'RH', data: 'Formation obligatoire', priority: 'medium', status: 30 },
+        { sheet: 'Qualité', data: 'Audit qualité prévu', priority: 'medium', status: 30 },
+        { sheet: 'Logistics', data: 'Livraison express requise', priority: 'high', status: 30 },
+        { sheet: 'Marketing', data: 'Campagne en cours', priority: 'low', status: 15 },
+        { sheet: 'Support', data: 'Incident critique résolu', priority: 'medium', status: 30 }
     ];
     
     let alertId = 1;
     
     // Create alerts from sample data
     sampleData.forEach(item => {
-        currentAlerts.push({
+        const alert = {
             id: alertId++,
             title: `${item.sheet} - Alerte ${alertId}`,
-            content: `Données Excel: ${item.data}`,
+            content: `Données Excel: ${item.data} (Statut: ${item.status})`,
             priority: item.priority,
             status: 'pending',
             timestamp: new Date().toISOString(),
-            source: 'excel'
-        });
+            source: 'excel',
+            excelStatus: item.status,
+            isStatus30: item.status === 30
+        };
+        
+        currentAlerts.push(alert);
+        if (item.status === 30) {
+            status30Alerts.push(alert);
+        }
     });
     
     // Fill remaining slots with generated data
     while (currentAlerts.length < 30) {
         const sheets = ['DataSheet', 'Results', 'Analysis', 'Reports'];
         const randomSheet = sheets[Math.floor(Math.random() * sheets.length)];
+        const randomStatus = Math.random() > 0.6 ? 30 : Math.floor(Math.random() * 40) + 10;
         
-        currentAlerts.push({
+        const alert = {
             id: alertId++,
             title: `${randomSheet} - Ligne ${alertId + 10}`,
-            content: `Données extraites: Valeur ${Math.floor(Math.random() * 1000)} (Colonne ${String.fromCharCode(65 + Math.floor(Math.random() * 10))})`,
+            content: `Données extraites: Valeur ${Math.floor(Math.random() * 1000)} (Colonne ${String.fromCharCode(65 + Math.floor(Math.random() * 10))}) - Statut: ${randomStatus}`,
             priority: getRandomPriority(),
             status: 'pending',
             timestamp: new Date().toISOString(),
-            source: 'excel'
-        });
+            source: 'excel',
+            excelStatus: randomStatus,
+            isStatus30: randomStatus === 30
+        };
+        
+        currentAlerts.push(alert);
+        if (randomStatus === 30) {
+            status30Alerts.push(alert);
+        }
     }
     
     renderAlerts();
@@ -318,6 +385,7 @@ function generateSampleExcelAlerts() {
 
 function generateAlertsFromData(data) {
     currentAlerts = [];
+    status30Alerts = [];
     
     // Group data by sheets for better organization
     const sheetData = {};
@@ -334,23 +402,59 @@ function generateAlertsFromData(data) {
     Object.keys(sheetData).forEach(sheetName => {
         const items = sheetData[sheetName];
         
+        // Check if sheet has status 30 items
+        const status30Items = items.filter(item => 
+            item.value.toLowerCase().includes('statut 30') || 
+            item.value.toLowerCase().includes('status 30') ||
+            item.value === '30'
+        );
+        
         // Create summary alert for sheet
-        currentAlerts.push({
+        const sheetAlert = {
             id: alertId++,
             title: `Feuille: ${sheetName}`,
-            content: `${items.length} éléments trouvés dans la feuille ${sheetName}`,
-            priority: 'medium',
+            content: `${items.length} éléments trouvés dans la feuille ${sheetName}${status30Items.length > 0 ? ` (${status30Items.length} statut 30)` : ''}`,
+            priority: status30Items.length > 0 ? 'high' : 'medium',
             status: 'pending',
             timestamp: new Date().toISOString(),
             source: 'excel',
-            sheetData: items.slice(0, 10) // Store first 10 items as sample
+            sheetData: items.slice(0, 10), // Store first 10 items as sample
+            isStatus30: status30Items.length > 0,
+            excelStatus: status30Items.length > 0 ? 30 : null
+        };
+        
+        currentAlerts.push(sheetAlert);
+        if (status30Items.length > 0) {
+            status30Alerts.push(sheetAlert);
+        }
+        
+        // Create alerts for status 30 items first
+        status30Items.forEach(item => {
+            if (alertId <= 30) {
+                const alert = {
+                    id: alertId++,
+                    title: `📌 STATUT 30 - ${item.address}`,
+                    content: `Valeur statut 30 détectée: "${item.value}" (${item.sheet}, ligne ${item.row}, colonne ${item.column})`,
+                    priority: 'high',
+                    status: 'pending',
+                    timestamp: new Date().toISOString(),
+                    source: 'excel',
+                    cellData: item,
+                    isStatus30: true,
+                    excelStatus: 30
+                };
+                currentAlerts.push(alert);
+                status30Alerts.push(alert);
+            }
         });
         
         // Create alerts for high-value cells (containing specific keywords or numbers)
         items.forEach(item => {
             const value = item.value.toLowerCase();
-            if (value.includes('urgent') || value.includes('important') || value.includes('critique') || 
-                value.includes('alerte') || value.includes('erreur') || /\d{4,}/.test(value)) {
+            const isStatus30 = value.includes('statut 30') || value.includes('status 30') || value === '30';
+            
+            if (!isStatus30 && (value.includes('urgent') || value.includes('important') || value.includes('critique') || 
+                value.includes('alerte') || value.includes('erreur') || /\d{4,}/.test(value))) {
                 
                 if (alertId <= 30) { // Limit to 30 alerts max
                     currentAlerts.push({
@@ -361,7 +465,8 @@ function generateAlertsFromData(data) {
                         status: 'pending',
                         timestamp: new Date().toISOString(),
                         source: 'excel',
-                        cellData: item
+                        cellData: item,
+                        isStatus30: false
                     });
                 }
             }
@@ -379,7 +484,8 @@ function generateAlertsFromData(data) {
             status: 'pending',
             timestamp: new Date().toISOString(),
             source: 'excel',
-            cellData: randomItem
+            cellData: randomItem,
+            isStatus30: false
         });
     }
     
