@@ -246,9 +246,9 @@ function handleFileSelect(event) {
     
     const fileSize = (file.size / 1024 / 1024).toFixed(2);
     fileDetails.innerHTML = `
-        <p><strong>Nom:</strong> ${file.name}</p>
+        <p><strong>Nom:</strong> ${escapeHtml(file.name)}</p>
         <p><strong>Taille:</strong> ${fileSize} MB</p>
-        <p><strong>Type:</strong> ${file.type || 'Non spécifié'}</p>
+        <p><strong>Type:</strong> ${escapeHtml(file.type || 'Non spécifié')}</p>
         <p><strong>Dernière modification:</strong> ${new Date(file.lastModified).toLocaleString('fr-FR')}</p>
     `;
     fileInfo.style.display = 'block';
