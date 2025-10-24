@@ -606,6 +606,22 @@ window.WebAlertApp = {
     generateDefaultAlerts,
     processExcelFile,
     sendAllAlerts,
-    currentAlerts,
-    emailConfig
+    get currentAlerts() { return currentAlerts; },
+    get emailConfig() { return emailConfig; }
 };
+
+// Export for Node.js/Jest testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        showTab,
+        generateDefaultAlerts,
+        processExcelFile,
+        sendAllAlerts,
+        getRandomPriority,
+        getStatusText,
+        getPriorityIcon,
+        formatFileSize,
+        get currentAlerts() { return currentAlerts; },
+        get emailConfig() { return emailConfig; }
+    };
+}
