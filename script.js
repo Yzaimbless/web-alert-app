@@ -28,33 +28,42 @@ function updateDateTime() {
     const now = new Date();
     
     // Update time
-    const timeString = now.toLocaleTimeString('fr-FR', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-    });
-    document.getElementById('current-time').textContent = timeString;
+    const timeElement = document.getElementById('current-time');
+    if (timeElement) {
+        const timeString = now.toLocaleTimeString('fr-FR', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        timeElement.textContent = timeString;
+    }
     
     // Update date
-    const dateString = now.toLocaleDateString('fr-FR', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-    document.getElementById('current-date').textContent = dateString;
+    const dateElement = document.getElementById('current-date');
+    if (dateElement) {
+        const dateString = now.toLocaleDateString('fr-FR', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        dateElement.textContent = dateString;
+    }
     
     // Update day period
-    const hour = now.getHours();
-    let period;
-    if (hour >= 5 && hour < 12) {
-        period = '🌅 MATIN';
-    } else if (hour >= 12 && hour < 18) {
-        period = '☀️ MIDI';
-    } else {
-        period = '🌙 SOIR';
+    const periodElement = document.getElementById('day-period');
+    if (periodElement) {
+        const hour = now.getHours();
+        let period;
+        if (hour >= 5 && hour < 12) {
+            period = '🌅 MATIN';
+        } else if (hour >= 12 && hour < 18) {
+            period = '☀️ MIDI';
+        } else {
+            period = '🌙 SOIR';
+        }
+        periodElement.textContent = period;
     }
-    document.getElementById('day-period').textContent = period;
 }
 
 // Tab Management
@@ -118,30 +127,66 @@ function getRandomPriority() {
 
 function renderAlerts() {
     const alertsGrid = document.getElementById('alerts-grid');
+    if (!alertsGrid) {
+        console.error('Élément alerts-grid non trouvé');
+        return;
+    }
+    
     alertsGrid.innerHTML = '';
     
+    if (!Array.isArray(currentAlerts) || currentAlerts.length === 0) {
+        alertsGrid.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">Aucune alerte disponible</p>';
+        return;
+    }
+    
     currentAlerts.forEach(alert => {
-        const alertElement = createAlertElement(alert);
-        alertsGrid.appendChild(alertElement);
+        try {
+            const alertElement = createAlertElement(alert);
+            alertsGrid.appendChild(alertElement);
+        } catch (error) {
+            console.error('Erreur lors de la création de l\'alerte:', alert, error);
+        }
     });
 }
 
 function createAlertElement(alert) {
+    if (!alert || typeof alert !== 'object') {
+        throw new Error('Alerte invalide');
+    }
+    
     const alertDiv = document.createElement('div');
-    alertDiv.className = `alert-item priority-${alert.priority}`;
+    const priority = alert.priority || 'low';
+    const status = alert.status || 'pending';
+    const title = alert.title || 'Sans titre';
+    const content = alert.content || 'Pas de contenu';
+    const timestamp = alert.timestamp ? new Date(alert.timestamp).toLocaleString('fr-FR') : 'Date inconnue';
+    
+    alertDiv.className = `alert-item priority-${priority}`;
     alertDiv.innerHTML = `
         <div class="alert-header">
-            <div class="alert-title">${alert.title}</div>
-            <div class="alert-status status-${alert.status}">
-                ${getStatusText(alert.status)}
+            <div class="alert-title">${escapeHtml(title)}</div>
+            <div class="alert-status status-${status}">
+                ${getStatusText(status)}
             </div>
         </div>
-        <div class="alert-content">${alert.content}</div>
+        <div class="alert-content">${escapeHtml(content)}</div>
         <div class="alert-timestamp">
-            Créé: ${new Date(alert.timestamp).toLocaleString('fr-FR')}
+            Créé: ${timestamp}
         </div>
     `;
     return alertDiv;
+}
+
+// Helper function to escape HTML and prevent XSS
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return String(text).replace(/[&<>"']/g, m => map[m]);
 }
 
 function getStatusText(status) {
@@ -167,17 +212,46 @@ function handleFileSelect(event) {
     const file = event.target.files[0];
     const fileInfo = document.getElementById('file-info');
     const fileDetails = document.getElementById('file-details');
+    const statusDiv = document.getElementById('processing-status');
     
-    if (file) {
-        const fileSize = (file.size / 1024 / 1024).toFixed(2);
-        fileDetails.innerHTML = `
-            <p><strong>Nom:</strong> ${file.name}</p>
-            <p><strong>Taille:</strong> ${fileSize} MB</p>
-            <p><strong>Type:</strong> ${file.type}</p>
-            <p><strong>Dernière modification:</strong> ${new Date(file.lastModified).toLocaleString('fr-FR')}</p>
-        `;
-        fileInfo.style.display = 'block';
+    // Clear previous status
+    statusDiv.style.display = 'none';
+    statusDiv.textContent = '';
+    
+    if (!file) {
+        fileInfo.style.display = 'none';
+        return;
     }
+    
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > maxSize) {
+        showProcessingStatus('Le fichier est trop volumineux. Taille maximale: 10MB', 'error');
+        event.target.value = '';
+        fileInfo.style.display = 'none';
+        return;
+    }
+    
+    // Validate file type
+    const validExtensions = ['.xlsx', '.xls', '.csv', '.txt'];
+    const fileName = file.name.toLowerCase();
+    const isValidType = validExtensions.some(ext => fileName.endsWith(ext));
+    
+    if (!isValidType) {
+        showProcessingStatus('Type de fichier non supporté. Formats acceptés: .xlsx, .xls, .csv, .txt', 'error');
+        event.target.value = '';
+        fileInfo.style.display = 'none';
+        return;
+    }
+    
+    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+    fileDetails.innerHTML = `
+        <p><strong>Nom:</strong> ${file.name}</p>
+        <p><strong>Taille:</strong> ${fileSize} MB</p>
+        <p><strong>Type:</strong> ${file.type || 'Non spécifié'}</p>
+        <p><strong>Dernière modification:</strong> ${new Date(file.lastModified).toLocaleString('fr-FR')}</p>
+    `;
+    fileInfo.style.display = 'block';
 }
 
 function processExcelFile() {
@@ -242,7 +316,7 @@ function processExcelFile() {
             
             // Switch to Status 30 tab to show results
             setTimeout(() => {
-                showTabByName('status30');
+                showTab('status30');
             }, 2000);
             
         } catch (error) {
@@ -262,7 +336,7 @@ function processExcelFile() {
             'success'
         );
         setTimeout(() => {
-            showTabByName('status30');
+            showTab('status30');
         }, 2000);
     }
 }
@@ -396,14 +470,7 @@ function showProcessingStatus(message, type) {
     statusDiv.style.display = 'block';
 }
 
-function showTabByName(tabName) {
-    // Directly call showTab with the tab name
-    if (tabName === 'status30' || tabName === 'import') {
-        showTab(tabName);
-    } else {
-        console.error('Invalid tab name:', tabName);
-    }
-}
+
 
 // EmailJS Integration
 function initializeEmailJS() {
@@ -457,20 +524,31 @@ function saveEmailConfiguration() {
 }
 
 function loadEmailConfiguration() {
-    const saved = localStorage.getItem('emailConfig');
-    if (saved) {
-        emailConfig = JSON.parse(saved);
-        
-        // Populate form fields
-        document.getElementById('emailjs-service').value = emailConfig.serviceId || '';
-        document.getElementById('emailjs-template').value = emailConfig.templateId || '';
-        document.getElementById('emailjs-user').value = emailConfig.userId || '';
-        document.getElementById('recipient-email').value = emailConfig.recipientEmail || '';
-        
-        // Initialize EmailJS if configured
-        if (emailConfig.userId) {
-            console.log('Email configuration loaded');
+    try {
+        const saved = localStorage.getItem('emailConfig');
+        if (saved) {
+            emailConfig = JSON.parse(saved);
+            
+            // Populate form fields
+            document.getElementById('emailjs-service').value = emailConfig.serviceId || '';
+            document.getElementById('emailjs-template').value = emailConfig.templateId || '';
+            document.getElementById('emailjs-user').value = emailConfig.userId || '';
+            document.getElementById('recipient-email').value = emailConfig.recipientEmail || '';
+            
+            // Initialize EmailJS if configured
+            if (emailConfig.userId) {
+                console.log('Email configuration loaded');
+            }
         }
+    } catch (error) {
+        console.error('Erreur lors du chargement de la configuration email:', error);
+        // Reset to default config if there's an error
+        emailConfig = {
+            serviceId: '',
+            templateId: '',
+            userId: '',
+            recipientEmail: ''
+        };
     }
 }
 
@@ -483,8 +561,14 @@ function sendAllAlerts() {
     }
     
     const sendButton = document.getElementById('send-alerts');
+    if (!sendButton) {
+        console.error('Bouton d\'envoi non trouvé');
+        return;
+    }
+    
     const originalText = sendButton.textContent;
-    sendButton.innerHTML = '<span class="loading"></span> Envoi en cours...';
+    sendButton.textContent = 'Envoi en cours...';
+    sendButton.classList.add('loading-state');
     sendButton.disabled = true;
     
     const pendingAlerts = currentAlerts.filter(alert => alert.status === 'pending');
@@ -492,6 +576,7 @@ function sendAllAlerts() {
     if (pendingAlerts.length === 0) {
         alert('Aucune alerte en attente à envoyer.');
         sendButton.textContent = originalText;
+        sendButton.classList.remove('loading-state');
         sendButton.disabled = false;
         return;
     }
@@ -508,6 +593,7 @@ function sendAlertsInBatches(alerts, startIndex) {
         // All alerts sent
         const sendButton = document.getElementById('send-alerts');
         sendButton.textContent = 'Envoyer Alertes Email';
+        sendButton.classList.remove('loading-state');
         sendButton.disabled = false;
         alert('Toutes les alertes ont été envoyées!');
         return;
@@ -533,6 +619,7 @@ function sendAlertsInBatches(alerts, startIndex) {
             console.error('Erreur lors de l\'envoi par lots:', error);
             const sendButton = document.getElementById('send-alerts');
             sendButton.textContent = 'Envoyer Alertes Email';
+            sendButton.classList.remove('loading-state');
             sendButton.disabled = false;
             alert('Erreur lors de l\'envoi des alertes: ' + error.message);
         });
@@ -580,7 +667,15 @@ function formatFileSize(bytes) {
 // Auto-save functionality
 setInterval(() => {
     if (currentAlerts.length > 0) {
-        localStorage.setItem('currentAlerts', JSON.stringify(currentAlerts));
+        try {
+            localStorage.setItem('currentAlerts', JSON.stringify(currentAlerts));
+        } catch (error) {
+            console.error('Erreur lors de la sauvegarde automatique des alertes:', error);
+            // Handle quota exceeded or other localStorage errors
+            if (error.name === 'QuotaExceededError') {
+                console.warn('Espace de stockage insuffisant. Sauvegarde impossible.');
+            }
+        }
     }
 }, 30000); // Save every 30 seconds
 
@@ -590,12 +685,15 @@ window.addEventListener('load', () => {
     if (savedAlerts) {
         try {
             const alerts = JSON.parse(savedAlerts);
-            if (alerts.length > 0) {
+            if (Array.isArray(alerts) && alerts.length > 0) {
                 currentAlerts = alerts;
                 renderAlerts();
+                console.log(`${alerts.length} alertes chargées depuis le stockage local`);
             }
         } catch (error) {
             console.error('Erreur lors du chargement des alertes sauvegardées:', error);
+            // If there's a parsing error, clear the corrupted data
+            localStorage.removeItem('currentAlerts');
         }
     }
 });
