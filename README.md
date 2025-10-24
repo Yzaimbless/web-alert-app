@@ -37,7 +37,12 @@ git clone https://github.com/Yzaimbless/web-alert-app.git
 cd web-alert-app
 ```
 
-2. **Lancer un serveur web local**
+2. **Installer les dépendances (optionnel, pour les tests)**
+```bash
+npm install
+```
+
+3. **Lancer un serveur web local**
 ```bash
 # Avec Python
 python3 -m http.server 8000
@@ -48,10 +53,36 @@ npx http-server
 # Ou ouvrir directement index.html dans le navigateur
 ```
 
-3. **Accéder à l'application**
+4. **Accéder à l'application**
 ```
 http://localhost:8000
 ```
+
+## Tests
+
+Le projet inclut une suite de tests automatisés pour vérifier le bon fonctionnement de l'application.
+
+### Lancer les tests
+```bash
+# Installer les dépendances (première fois uniquement)
+npm install
+
+# Lancer tous les tests
+npm test
+
+# Lancer les tests en mode watch (redémarre automatiquement)
+npm run test:watch
+
+# Générer un rapport de couverture de code
+npm run test:coverage
+```
+
+### Structure des tests
+- `script.test.js` : Tests unitaires et d'intégration
+- Tests des fonctions utilitaires (priorités, statuts, icônes)
+- Tests de la structure des données (alertes, configuration email)
+- Tests de navigation entre onglets
+- Tests d'intégration avec localStorage
 
 ## Configuration EmailJS
 
@@ -70,6 +101,10 @@ web-alert-app/
 ├── index.html          # Page principale
 ├── style.css           # Styles et animations
 ├── script.js           # Logique JavaScript
+├── script.test.js      # Tests automatisés
+├── package.json        # Configuration npm et dépendances
+├── jest.config.js      # Configuration Jest
+├── .gitignore          # Fichiers à ignorer par Git
 ├── README.md           # Documentation
 └── LICENSE             # Licence
 ```
@@ -81,6 +116,8 @@ web-alert-app/
 - **JavaScript ES6** : Logique métier et interactions
 - **EmailJS** : Envoi d'emails côté client
 - **FileReader API** : Lecture des fichiers Excel/CSV
+- **Jest** : Framework de tests unitaires et d'intégration
+- **jsdom** : Environnement DOM pour les tests
 
 ## Fonctionnalités Techniques
 
