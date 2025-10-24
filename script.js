@@ -58,7 +58,7 @@ function updateDateTime() {
 }
 
 // Tab Management
-function showTab(tabName) {
+function showTab(tabName, event) {
     // Hide all tabs
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
@@ -73,7 +73,18 @@ function showTab(tabName) {
     document.getElementById(tabName).classList.add('active');
     
     // Add active class to clicked button
-    event.target.classList.add('active');
+    if (event && event.target) {
+        event.target.classList.add('active');
+    } else {
+        // If no event, find and activate the corresponding button
+        document.querySelectorAll('.tab-button').forEach(button => {
+            const buttonText = button.textContent.toLowerCase();
+            if ((tabName === 'status30' && buttonText.includes('statut')) ||
+                (tabName === 'import' && buttonText.includes('import'))) {
+                button.classList.add('active');
+            }
+        });
+    }
 }
 
 // Alert Management
@@ -386,13 +397,12 @@ function showProcessingStatus(message, type) {
 }
 
 function showTabByName(tabName) {
-    // Find and click the corresponding tab button
-    const buttons = document.querySelectorAll('.tab-button');
-    buttons.forEach(button => {
-        if (button.textContent.includes('Statut') && tabName === 'status30') {
-            button.click();
-        }
-    });
+    // Directly call showTab with the tab name
+    if (tabName === 'status30' || tabName === 'import') {
+        showTab(tabName);
+    } else {
+        console.error('Invalid tab name:', tabName);
+    }
 }
 
 // EmailJS Integration
@@ -403,18 +413,8 @@ function initializeEmailJS() {
 
 function initializeEmailModal() {
     const modal = document.getElementById('email-modal');
-    const sendButton = document.getElementById('send-alerts');
     const closeButton = document.querySelector('.close');
     const configForm = document.getElementById('email-config');
-    
-    // Show modal when send alerts is clicked
-    sendButton.addEventListener('click', function() {
-        if (!isEmailConfigured()) {
-            modal.style.display = 'block';
-        } else {
-            sendAllAlerts();
-        }
-    });
     
     // Close modal
     closeButton.addEventListener('click', function() {
@@ -476,7 +476,9 @@ function loadEmailConfiguration() {
 
 function sendAllAlerts() {
     if (!isEmailConfigured()) {
-        alert('Veuillez configurer les paramètres email d\'abord.');
+        // Show configuration modal
+        const modal = document.getElementById('email-modal');
+        modal.style.display = 'block';
         return;
     }
     
