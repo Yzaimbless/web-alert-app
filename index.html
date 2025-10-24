@@ -6,65 +6,502 @@
     <title>Web Alert App - Darty</title>
     <link rel="stylesheet" href="style.css">
     <!-- Local libraries will be loaded in script.js -->
+    <style>
+        /* Fond animé rouge et blanc */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(-45deg, #ff0000, #ffffff, #cc0000, #f0f0f0);
+            background-size: 400% 400%;
+            animation: gradientShift 10s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Container principal pour pousser le footer en bas */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Bannière avec logo DARTY */
+        .banner {
+            background: linear-gradient(135deg, #d30000, #ff3333);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 3s;
+            animation: bannerShine 4s infinite;
+        }
+
+        @keyframes bannerShine {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: -100%; }
+        }
+
+        .banner-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 3px;
+        }
+
+        .logo-animation {
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            margin-left: 15px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.7; }
+        }
+
+        .datetime-container {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .time-display {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .date-display {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .period-display {
+            font-size: 1rem;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Navigation Tabs */
+        .tab-navigation {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0;
+            display: flex;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button:hover {
+            background: rgba(211, 0, 0, 0.1);
+            color: #d30000;
+        }
+
+        .tab-button.active {
+            background: rgba(211, 0, 0, 0.1);
+            color: #d30000;
+            border-bottom-color: #d30000;
+        }
+
+        /* Contenu des onglets */
+        .content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            flex: 1;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #d30000;
+        }
+
+        .tab-header h2 {
+            color: #d30000;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .alert-button, .process-button {
+            background: linear-gradient(135deg, #d30000, #ff3333);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(211, 0, 0, 0.3);
+        }
+
+        .alert-button:hover, .process-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(211, 0, 0, 0.4);
+        }
+
+        /* Upload area styling */
+        .file-upload-area {
+            border: 3px dashed #d30000;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .file-upload-area:hover {
+            border-color: #ff3333;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .file-upload-label {
+            cursor: pointer;
+            display: block;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #d30000;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin-top: auto;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #d30000, #ff3333, #d30000);
+            animation: footerGlow 3s linear infinite;
+        }
+
+        @keyframes footerGlow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .footer-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .developer-info {
+            margin-bottom: 15px;
+        }
+
+        .developer-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #ff3333;
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .developer-name {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .developer-name::before {
+            content: '👨‍💻';
+            font-size: 1.2rem;
+        }
+
+        .contributor-name {
+            font-size: 0.9rem;
+            color: #cccccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .contributor-name::before {
+            content: '🤝';
+            font-size: 1rem;
+        }
+
+        .footer-year {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 15px;
+            border-top: 1px solid #444;
+            padding-top: 15px;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #d30000;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #d30000;
+        }
+
+        #excel-file {
+            display: none;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .banner-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .logo {
+                font-size: 2rem;
+                margin-bottom: 15px;
+            }
+
+            .datetime-container {
+                text-align: center;
+            }
+
+            .time-display {
+                font-size: 1.5rem;
+            }
+
+            .tab-button {
+                font-size: 1rem;
+                padding: 12px 15px;
+            }
+
+            .developer-name, .contributor-name {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .footer {
+                padding: 20px 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Animated Banner -->
-    <header class="banner">
-        <div class="banner-content">
-            <div class="logo-container">
-                <h1 class="logo">DARTY</h1>
-                <div class="logo-animation"></div>
+    <div class="main-container">
+        <!-- Animated Banner -->
+        <header class="banner">
+            <div class="banner-content">
+                <div class="logo-container">
+                    <h1 class="logo">DARTY</h1>
+                    <div class="logo-animation"></div>
+                </div>
+                <div class="datetime-container">
+                    <div id="current-time" class="time-display"></div>
+                    <div id="current-date" class="date-display"></div>
+                    <div id="day-period" class="period-display"></div>
+                </div>
             </div>
-            <div class="datetime-container">
-                <div id="current-time" class="time-display"></div>
-                <div id="current-date" class="date-display"></div>
-                <div id="day-period" class="period-display"></div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tab-navigation">
+            <button class="tab-button active" onclick="showTab('status30', event)">Statut 30</button>
+            <button class="tab-button" onclick="showTab('import', event)">Import Excel</button>
+        </nav>
+
+        <!-- Content Wrapper -->
+        <div class="content-wrapper">
+            <!-- Status 30 Tab -->
+            <div id="status30" class="tab-content active">
+                <div class="tab-header">
+                    <h2>Statut des Alertes (30)</h2>
+                    <button id="send-alerts" class="alert-button">Envoyer Alertes Email</button>
+                </div>
+                <div class="alerts-container">
+                    <div class="alerts-grid" id="alerts-grid">
+                        <!-- Alerts will be generated here -->
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="banner-animation"></div>
-    </header>
 
-    <!-- Navigation Tabs -->
-    <nav class="tab-navigation">
-        <button class="tab-button active" onclick="showTab('status30', event)">Statut 30</button>
-        <button class="tab-button" onclick="showTab('import', event)">Import Excel</button>
-    </nav>
-
-    <!-- Status 30 Tab -->
-    <div id="status30" class="tab-content active">
-        <div class="tab-header">
-            <h2>Statut des Alertes (30)</h2>
-            <button id="send-alerts" class="alert-button">Envoyer Alertes Email</button>
-        </div>
-        <div class="alerts-container">
-            <div class="alerts-grid" id="alerts-grid">
-                <!-- Alerts will be generated here -->
+            <!-- Import Excel Tab -->
+            <div id="import" class="tab-content">
+                <div class="tab-header">
+                    <h2>Import de Fichier Excel</h2>
+                </div>
+                <div class="import-container">
+                    <div class="file-upload-area">
+                        <input type="file" id="excel-file" accept=".xlsx,.xls" />
+                        <label for="excel-file" class="file-upload-label">
+                            <div class="upload-icon">📁</div>
+                            <div class="upload-text">Cliquez pour sélectionner un fichier Excel</div>
+                            <div class="upload-subtext">Formats supportés: .xlsx, .xls</div>
+                        </label>
+                    </div>
+                    <div class="file-info" id="file-info" style="display: none;">
+                        <h3>Informations du fichier:</h3>
+                        <div id="file-details"></div>
+                        <button id="process-file" class="process-button">Traiter le fichier</button>
+                    </div>
+                    <div class="processing-status" id="processing-status"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Import Excel Tab -->
-    <div id="import" class="tab-content">
-        <div class="tab-header">
-            <h2>Import de Fichier Excel</h2>
-        </div>
-        <div class="import-container">
-            <div class="file-upload-area">
-                <input type="file" id="excel-file" accept=".xlsx,.xls" />
-                <label for="excel-file" class="file-upload-label">
-                    <div class="upload-icon">📁</div>
-                    <div class="upload-text">Cliquez pour sélectionner un fichier Excel</div>
-                    <div class="upload-subtext">Formats supportés: .xlsx, .xls</div>
-                </label>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="developer-info">
+                <div class="developer-title">Développé par</div>
+                <div class="developer-name">Willem Leopold</div>
+                <div class="contributor-name">Contributeur: Michael Poitrault</div>
             </div>
-            <div class="file-info" id="file-info" style="display: none;">
-                <h3>Informations du fichier:</h3>
-                <div id="file-details"></div>
-                <button id="process-file" class="process-button">Traiter le fichier</button>
+            <div class="footer-year">
+                © 2025 - Web Alert App | Darty
             </div>
-            <div class="processing-status" id="processing-status"></div>
         </div>
-    </div>
+    </footer>
 
     <!-- Email Configuration Modal -->
     <div id="email-modal" class="modal">
@@ -94,5 +531,69 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        // Fonction pour mettre à jour l'heure, la date et la période
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Format de l'heure (HH:MM:SS)
+            const timeString = now.toLocaleTimeString('fr-FR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            // Format de la date
+            const dateString = now.toLocaleDateString('fr-FR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            // Période de la journée
+            const hour = now.getHours();
+            let period;
+            if (hour < 12) {
+                period = 'Matin';
+            } else if (hour < 18) {
+                period = 'Après-midi';
+            } else {
+                period = 'Soir';
+            }
+            
+            // Mise à jour des éléments
+            document.getElementById('current-time').textContent = timeString;
+            document.getElementById('current-date').textContent = dateString;
+            document.getElementById('day-period').textContent = period;
+        }
+        
+        // Mettre à jour immédiatement
+        updateDateTime();
+        
+        // Mettre à jour chaque seconde
+        setInterval(updateDateTime, 1000);
+        
+        // Fonction pour changer d'onglet
+        function showTab(tabName, event) {
+            // Cacher tous les contenus d'onglets
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Désactiver tous les boutons d'onglets
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Afficher le contenu de l'onglet sélectionné
+            document.getElementById(tabName).classList.add('active');
+            
+            // Activer le bouton de l'onglet sélectionné
+            event.target.classList.add('active');
+        }
+    </script>
 </body>
 </html>
