@@ -1,5 +1,7 @@
 # Web Alert App - Darty
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/31c45de211d6462a8311cfcd513d4292)](https://app.codacy.com/gh/Yzaimbless/web-alert-app?utm_source=github.com&utm_medium=referral&utm_content=Yzaimbless/web-alert-app&utm_campaign=Badge_Grade)
+
 Une application web d'alertes avec système d'envoi d'emails via EmailJS, bannière animée Darty, et import de fichiers Excel.
 
 ## Fonctionnalités
