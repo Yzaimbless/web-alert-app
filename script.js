@@ -112,105 +112,6 @@ function loadAlertsFromStorage() {
     return false;
 }
 
-// ==================== EMAIL FUNCTIONALITY ====================
-
-let emailConfig = {
-    serviceId: '',
-    templateId: '',
-    userId: '',
-    recipientEmail: ''
-};
-
-function loadEmailConfig() {
-    try {
-        const stored = localStorage.getItem('emailConfig');
-        if (stored) {
-            emailConfig = JSON.parse(stored);
-        }
-    } catch (error) {
-        console.error('Error loading email config:', error);
-    }
-}
-
-function saveEmailConfig(config) {
-    try {
-        emailConfig = config;
-        localStorage.setItem('emailConfig', JSON.stringify(config));
-    } catch (error) {
-        console.error('Error saving email config:', error);
-    }
-}
-
-async function sendAlerts() {
-    const pendingAlerts = alerts.filter(a => a.status === 'pending');
-    
-    if (pendingAlerts.length === 0) {
-        alert('Aucune alerte en attente à envoyer.');
-        return;
-    }
-    
-    // Check if email config exists
-    if (!emailConfig.serviceId || !emailConfig.recipientEmail) {
-        showEmailModal();
-        return;
-    }
-    
-    // Simulate sending emails (90% success rate)
-    const button = document.getElementById('send-alerts');
-    if (button) {
-        button.disabled = true;
-        button.textContent = 'Envoi en cours...';
-    }
-    
-    let sent = 0;
-    let errors = 0;
-    
-    for (let alert of pendingAlerts) {
-        // Simulate delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // 90% success rate
-        if (Math.random() < 0.9) {
-            alert.status = 'sent';
-            sent++;
-        } else {
-            alert.status = 'error';
-            errors++;
-        }
-        
-        displayAlerts();
-    }
-    
-    saveAlertsToStorage();
-    
-    if (button) {
-        button.disabled = false;
-        button.textContent = 'Envoyer Alertes Email';
-    }
-    
-    alert(`Envoi terminé!\n✓ ${sent} alertes envoyées\n✗ ${errors} erreurs`);
-}
-
-function showEmailModal() {
-    const modal = document.getElementById('email-modal');
-    if (modal) {
-        modal.style.display = 'block';
-        
-        // Fill existing config
-        document.getElementById('emailjs-service').value = emailConfig.serviceId || '';
-        document.getElementById('emailjs-template').value = emailConfig.templateId || '';
-        document.getElementById('emailjs-user').value = emailConfig.userId || '';
-        document.getElementById('recipient-email').value = emailConfig.recipientEmail || '';
-    }
-}
-
-function hideEmailModal() {
-    const modal = document.getElementById('email-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
 // ==================== EXCEL FILE HANDLING ====================
 
 function handleExcelFile(file) {
@@ -352,18 +253,9 @@ function readCSVFile(file, statusDiv) {
 // ==================== EVENT LISTENERS ====================
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Load email config
-    loadEmailConfig();
-    
     // Load or generate alerts
     if (!loadAlertsFromStorage()) {
         generateDartyAlerts();
-    }
-    
-    // Send alerts button
-    const sendButton = document.getElementById('send-alerts');
-    if (sendButton) {
-        sendButton.addEventListener('click', sendAlerts);
     }
     
     // File upload
@@ -385,41 +277,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (fileInput && fileInput.files[0]) {
                 handleExcelFile(fileInput.files[0]);
             }
-        });
-    }
-    
-    // Email modal
-    const modal = document.getElementById('email-modal');
-    const closeBtn = modal ? modal.querySelector('.close') : null;
-    
-    if (closeBtn) {
-        closeBtn.addEventListener('click', hideEmailModal);
-    }
-    
-    if (modal) {
-        window.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                hideEmailModal();
-            }
-        });
-    }
-    
-    // Email config form
-    const emailForm = document.getElementById('email-config');
-    if (emailForm) {
-        emailForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const config = {
-                serviceId: document.getElementById('emailjs-service').value,
-                templateId: document.getElementById('emailjs-template').value,
-                userId: document.getElementById('emailjs-user').value,
-                recipientEmail: document.getElementById('recipient-email').value
-            };
-            
-            saveEmailConfig(config);
-            hideEmailModal();
-            alert('Configuration email sauvegardée!');
         });
     }
     
