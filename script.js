@@ -140,13 +140,25 @@ function renderAlerts() {
     const status30Tab = document.getElementById('status30');
     const isStatus30TabActive = status30Tab && status30Tab.classList.contains('active');
     
-    // Filter to show only status 30 alerts when Status 30 tab is active
-    const alertsToDisplay = (isStatus30TabActive && status30Alerts.length > 0) ? status30Alerts : currentAlerts;
-    
-    alertsToDisplay.forEach(alert => {
-        const alertElement = createAlertElement(alert);
-        alertsGrid.appendChild(alertElement);
-    });
+    // If Status 30 tab is active and there are no status 30 alerts, show empty state
+    if (isStatus30TabActive) {
+        if (status30Alerts.length === 0) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'empty-state';
+            emptyDiv.textContent = "Aucune alerte Statut 30 disponible.";
+            alertsGrid.appendChild(emptyDiv);
+        } else {
+            status30Alerts.forEach(alert => {
+                const alertElement = createAlertElement(alert);
+                alertsGrid.appendChild(alertElement);
+            });
+        }
+    } else {
+        currentAlerts.forEach(alert => {
+            const alertElement = createAlertElement(alert);
+            alertsGrid.appendChild(alertElement);
+        });
+    }
     
     // Update the tab header with status 30 count
     updateStatus30Header();
