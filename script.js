@@ -324,7 +324,11 @@ function processExcelFile() {
         );
         setTimeout(() => {
             showTabByName('status30');
-            // Re-render to ensure proper filtering after tab switch
+            // The following timeout is used to ensure the tab switch DOM updates are complete
+            // before re-rendering alerts. This is a workaround for timing issues where immediate
+            // rendering may occur before the tab is fully visible. The 100ms value was chosen
+            // empirically to balance responsiveness and reliability. If a tab transition completion
+            // event becomes available, refactor to use that instead.
             setTimeout(() => renderAlerts(), 100);
         }, 2000);
     }
