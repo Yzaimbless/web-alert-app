@@ -1,0 +1,15 @@
+{
+  "name": "web-alert-app",
+  "version": "1.0.0",
+  "description": "Une application web d'alertes avec bannière animée Darty et import de fichiers Excel avec lecture complète de toutes les feuilles, lignes et colonnes.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
