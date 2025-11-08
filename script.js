@@ -224,11 +224,32 @@ function handleExcelFile(file) {
     
     // Display file info
     if (fileInfo && fileDetails) {
-        fileDetails.innerHTML = `
-            <p><strong>Nom:</strong> ${file.name}</p>
-            <p><strong>Taille:</strong> ${(file.size / 1024).toFixed(2)} KB</p>
-            <p><strong>Type:</strong> ${file.type || 'Non spécifié'}</p>
-        `;
+        // Clear previous content
+        fileDetails.innerHTML = '';
+        
+        // Create elements safely to prevent XSS
+        const nameP = document.createElement('p');
+        const nameStrong = document.createElement('strong');
+        nameStrong.textContent = 'Nom: ';
+        nameP.appendChild(nameStrong);
+        nameP.appendChild(document.createTextNode(file.name));
+        
+        const sizeP = document.createElement('p');
+        const sizeStrong = document.createElement('strong');
+        sizeStrong.textContent = 'Taille: ';
+        sizeP.appendChild(sizeStrong);
+        sizeP.appendChild(document.createTextNode((file.size / 1024).toFixed(2) + ' KB'));
+        
+        const typeP = document.createElement('p');
+        const typeStrong = document.createElement('strong');
+        typeStrong.textContent = 'Type: ';
+        typeP.appendChild(typeStrong);
+        typeP.appendChild(document.createTextNode(file.type || 'Non spécifié'));
+        
+        fileDetails.appendChild(nameP);
+        fileDetails.appendChild(sizeP);
+        fileDetails.appendChild(typeP);
+        
         fileInfo.style.display = 'block';
     }
     
@@ -254,11 +275,24 @@ function readCSVFile(file, statusDiv) {
             
             if (statusDiv) {
                 statusDiv.className = 'processing-status success';
-                statusDiv.innerHTML = `
-                    <p><strong>✓ Fichier traité avec succès!</strong></p>
-                    <p>Nombre de lignes: ${lines.length}</p>
-                    <p>Première ligne: ${lines[0] ? lines[0].substring(0, 100) + '...' : 'Vide'}</p>
-                `;
+                statusDiv.innerHTML = '';
+                
+                // Create success message safely
+                const successP = document.createElement('p');
+                const successStrong = document.createElement('strong');
+                successStrong.textContent = '✓ Fichier traité avec succès!';
+                successP.appendChild(successStrong);
+                
+                const linesP = document.createElement('p');
+                linesP.textContent = `Nombre de lignes: ${lines.length}`;
+                
+                const firstLineP = document.createElement('p');
+                const firstLineText = lines[0] ? lines[0].substring(0, 100) + '...' : 'Vide';
+                firstLineP.textContent = `Première ligne: ${firstLineText}`;
+                
+                statusDiv.appendChild(successP);
+                statusDiv.appendChild(linesP);
+                statusDiv.appendChild(firstLineP);
             }
             
             // Check for keywords
@@ -268,19 +302,31 @@ function readCSVFile(file, statusDiv) {
             lines.forEach((line, index) => {
                 keywords.forEach(keyword => {
                     if (line.toLowerCase().includes(keyword)) {
-                        foundKeywords.push(`Ligne ${index + 1}: "${keyword}"`);
+                        foundKeywords.push({line: index + 1, keyword: keyword});
                     }
                 });
             });
             
             if (foundKeywords.length > 0 && statusDiv) {
                 const keywordDiv = document.createElement('div');
-                keywordDiv.innerHTML = `
-                    <p style="margin-top: 15px;"><strong>🔍 Mots-clés trouvés:</strong></p>
-                    <ul style="margin-left: 20px;">
-                        ${foundKeywords.slice(0, 10).map(k => `<li>${k}</li>`).join('')}
-                    </ul>
-                `;
+                keywordDiv.style.marginTop = '15px';
+                
+                const keywordP = document.createElement('p');
+                const keywordStrong = document.createElement('strong');
+                keywordStrong.textContent = '🔍 Mots-clés trouvés:';
+                keywordP.appendChild(keywordStrong);
+                
+                const keywordList = document.createElement('ul');
+                keywordList.style.marginLeft = '20px';
+                
+                foundKeywords.slice(0, 10).forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `Ligne ${item.line}: "${item.keyword}"`;
+                    keywordList.appendChild(li);
+                });
+                
+                keywordDiv.appendChild(keywordP);
+                keywordDiv.appendChild(keywordList);
                 statusDiv.appendChild(keywordDiv);
             }
             
