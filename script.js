@@ -5,6 +5,13 @@ let alerts = [];
 const KEYWORDS = ['urgent', 'critique', 'important', 'alerte', 'prioritaire', 'attention'];
 const MAX_CONTENT_LENGTH = 100;
 
+// Helper function to escape HTML and prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Generate initial 30 alerts for Darty Status 30 tab
 function initializeAlerts() {
     const priorities = ['high', 'medium', 'low'];
@@ -54,14 +61,14 @@ function renderAlerts() {
         
         alertCard.innerHTML = `
             <div class="alert-header">
-                <span class="alert-title">${alert.title}</span>
+                <span class="alert-title">${escapeHtml(alert.title)}</span>
                 <span class="alert-status status-${alert.status}">
                     ${alert.status === 'pending' ? 'En attente' : 
                       alert.status === 'sent' ? 'Envoyé' : 'Erreur'}
                 </span>
             </div>
-            <div class="alert-content">${alert.content}</div>
-            <div class="alert-timestamp">${alert.timestamp}</div>
+            <div class="alert-content">${escapeHtml(alert.content)}</div>
+            <div class="alert-timestamp">${escapeHtml(alert.timestamp)}</div>
         `;
         
         grid.appendChild(alertCard);
@@ -92,9 +99,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (fileDetails) {
                 fileDetails.innerHTML = `
-                    <p><strong>Nom du fichier:</strong> ${file.name}</p>
+                    <p><strong>Nom du fichier:</strong> ${escapeHtml(file.name)}</p>
                     <p><strong>Taille:</strong> ${(file.size / 1024).toFixed(2)} KB</p>
-                    <p><strong>Type:</strong> ${file.type}</p>
+                    <p><strong>Type:</strong> ${escapeHtml(file.type)}</p>
                 `;
             }
             
@@ -109,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (fileDetails && currentWorkbook) {
                         fileDetails.innerHTML += `
                             <p><strong>Nombre de feuilles:</strong> ${currentWorkbook.SheetNames.length}</p>
-                            <p><strong>Feuilles:</strong> ${currentWorkbook.SheetNames.join(', ')}</p>
+                            <p><strong>Feuilles:</strong> ${escapeHtml(currentWorkbook.SheetNames.join(', '))}</p>
                         `;
                     }
                 } catch (error) {
@@ -253,7 +260,7 @@ function processExcelFile() {
                 <hr style="margin: 15px 0;">
                 <h4>Détails par feuille:</h4>
                 ${excelData.sheets.map(sheet => `
-                    <p><strong>${sheet.name}:</strong> ${sheet.rowCount} lignes × ${sheet.columnCount} colonnes = ${sheet.cellCount} cellules</p>
+                    <p><strong>${escapeHtml(sheet.name)}:</strong> ${sheet.rowCount} lignes × ${sheet.columnCount} colonnes = ${sheet.cellCount} cellules</p>
                 `).join('')}
             `;
         }
