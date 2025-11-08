@@ -1,6 +1,10 @@
 // Initialize alerts array
 let alerts = [];
 
+// Configuration constants
+const KEYWORDS = ['urgent', 'critique', 'important', 'alerte', 'prioritaire', 'attention'];
+const MAX_CONTENT_LENGTH = 100;
+
 // Generate initial 30 alerts for Darty Status 30 tab
 function initializeAlerts() {
     const priorities = ['high', 'medium', 'low'];
@@ -165,7 +169,6 @@ function processExcelFile() {
         };
         
         let alertsGenerated = 0;
-        const keywords = ['urgent', 'critique', 'important', 'alerte', 'prioritaire', 'attention'];
         
         // Process EVERY sheet
         currentWorkbook.SheetNames.forEach((sheetName, sheetIndex) => {
@@ -210,13 +213,13 @@ function processExcelFile() {
                     // Check for keywords to generate alerts
                     if (cellData.value && typeof cellData.value === 'string') {
                         const cellValueLower = cellData.value.toLowerCase();
-                        for (const keyword of keywords) {
+                        for (const keyword of KEYWORDS) {
                             if (cellValueLower.includes(keyword)) {
                                 alertsGenerated++;
                                 alerts.push({
                                     id: alerts.length + 1,
                                     title: `Excel: ${sheetName} - ${cellAddress}`,
-                                    content: `${cellData.value.substring(0, 100)}${cellData.value.length > 100 ? '...' : ''}`,
+                                    content: `${cellData.value.substring(0, MAX_CONTENT_LENGTH)}${cellData.value.length > MAX_CONTENT_LENGTH ? '...' : ''}`,
                                     priority: keyword === 'urgent' || keyword === 'critique' ? 'high' : 
                                              keyword === 'important' || keyword === 'prioritaire' ? 'medium' : 'low',
                                     status: 'pending',
