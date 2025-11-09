@@ -247,6 +247,120 @@
             font-size: 0.9rem;
         }
 
+        /* Alert Items Styling */
+        .alerts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .alert-item {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert-item:hover {
+            border-color: #d30000;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(211, 0, 0, 0.2);
+        }
+
+        .alert-item.priority-high {
+            border-color: #d30000;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%);
+        }
+
+        .alert-item.priority-medium {
+            border-color: #ffc107;
+            background: linear-gradient(135deg, #fffbf0 0%, #fff3cd 100%);
+        }
+
+        .alert-item.priority-low {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #f8fff8 0%, #d4edda 100%);
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .alert-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .alert-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .alert-status.status-pending {
+            background: #ffc107;
+            color: #fff;
+        }
+
+        .alert-content {
+            margin-bottom: 15px;
+        }
+
+        .alert-content p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .alert-content strong {
+            color: #d30000;
+        }
+
+        .alert-timestamp {
+            font-size: 0.85rem;
+            color: #999;
+            text-align: right;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .processing-status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .processing-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .processing-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .processing-status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
         /* Footer */
         .footer {
             background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
@@ -424,6 +538,111 @@
                 padding: 20px 15px;
             }
         }
+
+        /* Departmental Poles Section */
+        .poles-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            margin: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .poles-title {
+            text-align: center;
+            color: #d30000;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #d30000;
+        }
+
+        .poles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pole-card {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pole-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #d30000, #ff3333);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .pole-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(211, 0, 0, 0.2);
+            border-color: #d30000;
+        }
+
+        .pole-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .pole-icon {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 15px;
+            animation: bounceIcon 2s ease-in-out infinite;
+        }
+
+        @keyframes bounceIcon {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .pole-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #d30000;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .pole-manager {
+            text-align: center;
+            color: #333;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .pole-manager::before {
+            content: '👤';
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .poles-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .poles-section {
+                margin: 10px;
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -443,22 +662,91 @@
             </div>
         </header>
 
+        <!-- Departmental Poles Section -->
+        <section class="poles-section">
+            <h2 class="poles-title">📋 Pôles & Responsables</h2>
+            <div class="poles-grid">
+                <div class="pole-card">
+                    <div class="pole-icon">🎯</div>
+                    <div class="pole-name">Pôle Direction</div>
+                    <div class="pole-manager">Joseph Penot</div>
+                </div>
+                <div class="pole-card">
+                    <div class="pole-icon">📦</div>
+                    <div class="pole-name">Pôle Logistique</div>
+                    <div class="pole-manager">Michael Poitrault</div>
+                </div>
+                <div class="pole-card">
+                    <div class="pole-icon">🔄</div>
+                    <div class="pole-name">Pôle Flux</div>
+                    <div class="pole-manager">Christelle Albors</div>
+                </div>
+                <div class="pole-card">
+                    <div class="pole-icon">🔧</div>
+                    <div class="pole-name">Pôle RMA</div>
+                    <div class="pole-manager">Isabelle Level</div>
+                </div>
+            </div>
+        </section>
+
         <!-- Navigation Tabs -->
         <nav class="tab-navigation">
-            <button class="tab-button active" onclick="showTab('status30', event)">Statut 30</button>
+            <button class="tab-button active" onclick="showTab('status20', event)">Statut 20</button>
+            <button class="tab-button" onclick="showTab('status30', event)">Statut 30</button>
+            <button class="tab-button" onclick="showTab('status70', event)">Statut 70</button>
+            <button class="tab-button" onclick="showTab('status80', event)">Statut 80</button>
             <button class="tab-button" onclick="showTab('import', event)">Import Excel</button>
         </nav>
 
         <!-- Content Wrapper -->
         <div class="content-wrapper">
-            <!-- Status 30 Tab -->
-            <div id="status30" class="tab-content active">
+            <!-- Status 20 Tab -->
+            <div id="status20" class="tab-content active">
                 <div class="tab-header">
-                    <h2>Statut des Alertes (30)</h2>
-                    <button id="send-alerts" class="alert-button">Envoyer Alertes Email</button>
+                    <h2>Statut des Alertes (20)</h2>
+                    <button class="alert-button" onclick="generateAlertsForStatus(20)">Générer Alertes Statut 20</button>
                 </div>
                 <div class="alerts-container">
-                    <div class="alerts-grid" id="alerts-grid">
+                    <div class="alerts-grid" id="alerts-grid-20">
+                        <!-- Alerts will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status 30 Tab -->
+            <div id="status30" class="tab-content">
+                <div class="tab-header">
+                    <h2>Statut des Alertes (30)</h2>
+                    <button class="alert-button" onclick="generateAlertsForStatus(30)">Générer Alertes Statut 30</button>
+                </div>
+                <div class="alerts-container">
+                    <div class="alerts-grid" id="alerts-grid-30">
+                        <!-- Alerts will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status 70 Tab -->
+            <div id="status70" class="tab-content">
+                <div class="tab-header">
+                    <h2>Statut des Alertes (70)</h2>
+                    <button class="alert-button" onclick="generateAlertsForStatus(70)">Générer Alertes Statut 70</button>
+                </div>
+                <div class="alerts-container">
+                    <div class="alerts-grid" id="alerts-grid-70">
+                        <!-- Alerts will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status 80 Tab -->
+            <div id="status80" class="tab-content">
+                <div class="tab-header">
+                    <h2>Statut des Alertes (80)</h2>
+                    <button class="alert-button" onclick="generateAlertsForStatus(80)">Générer Alertes Statut 80</button>
+                </div>
+                <div class="alerts-container">
+                    <div class="alerts-grid" id="alerts-grid-80">
                         <!-- Alerts will be generated here -->
                     </div>
                 </div>
@@ -471,11 +759,11 @@
                 </div>
                 <div class="import-container">
                     <div class="file-upload-area">
-                        <input type="file" id="excel-file" accept=".xlsx,.xls" />
+                        <input type="file" id="excel-file" accept=".xlsx,.xls,.csv" />
                         <label for="excel-file" class="file-upload-label">
                             <div class="upload-icon">📁</div>
-                            <div class="upload-text">Cliquez pour sélectionner un fichier Excel</div>
-                            <div class="upload-subtext">Formats supportés: .xlsx, .xls</div>
+                            <div class="upload-text">Cliquez pour sélectionner un fichier Excel ou CSV</div>
+                            <div class="upload-subtext">Formats supportés: .xlsx, .xls, .csv</div>
                         </label>
                     </div>
                     <div class="file-info" id="file-info" style="display: none;">
