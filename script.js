@@ -71,7 +71,8 @@ function readCSVFile(file) {
             
             // Parse CSV data
             const sheetData = [];
-            lines.forEach((line, rowIndex) => {
+            let actualRowIndex = 0;
+            lines.forEach((line) => {
                 if (line.trim() === '') return;
                 
                 // Simple CSV parsing (handles basic cases)
@@ -79,7 +80,7 @@ function readCSVFile(file) {
                 const rowData = [];
                 
                 cells.forEach((cellValue, colIndex) => {
-                    const cellAddress = columnToLetter(colIndex) + (rowIndex + 1);
+                    const cellAddress = columnToLetter(colIndex) + (actualRowIndex + 1);
                     rowData.push({
                         address: cellAddress,
                         value: cellValue,
@@ -88,6 +89,7 @@ function readCSVFile(file) {
                 });
                 
                 sheetData.push(rowData);
+                actualRowIndex++;
             });
             
             // Store data
