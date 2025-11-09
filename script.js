@@ -2,12 +2,6 @@
 // Global Variables and Configuration
 // ========================================
 let alerts = [];
-let emailConfig = {
-    serviceId: '',
-    templateId: '',
-    userId: '',
-    recipientEmail: ''
-};
 
 // ========================================
 // Initialize Application
@@ -19,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeApp() {
     // Load saved data
     loadAlertsFromStorage();
-    loadEmailConfig();
     
     // Generate initial alerts if none exist
     if (alerts.length === 0) {
@@ -43,12 +36,6 @@ function initializeApp() {
 // Event Listeners Setup
 // ========================================
 function setupEventListeners() {
-    // Send Alerts Button
-    const sendAlertsBtn = document.getElementById('send-alerts');
-    if (sendAlertsBtn) {
-        sendAlertsBtn.addEventListener('click', handleSendAlerts);
-    }
-    
     // File Upload
     const fileInput = document.getElementById('excel-file');
     if (fileInput) {
@@ -59,28 +46,6 @@ function setupEventListeners() {
     const processBtn = document.getElementById('process-file');
     if (processBtn) {
         processBtn.addEventListener('click', handleProcessFile);
-    }
-    
-    // Modal Close Button
-    const closeBtn = document.querySelector('.close');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeEmailModal);
-    }
-    
-    // Email Config Form
-    const emailForm = document.getElementById('email-config');
-    if (emailForm) {
-        emailForm.addEventListener('submit', handleEmailConfigSubmit);
-    }
-    
-    // Close modal when clicking outside
-    const modal = document.getElementById('email-modal');
-    if (modal) {
-        modal.addEventListener('click', function(event) {
-            if (event.target === modal) {
-                closeEmailModal();
-            }
-        });
     }
 }
 
@@ -196,101 +161,6 @@ function formatFrenchDateTime(date) {
 }
 
 // ========================================
-// Email Functionality
-// ========================================
-function handleSendAlerts() {
-    // Check if email is configured
-    if (!emailConfig.serviceId || !emailConfig.recipientEmail) {
-        openEmailModal();
-        return;
-    }
-    
-    const pendingAlerts = alerts.filter(alert => alert.status === 'pending');
-    
-    if (pendingAlerts.length === 0) {
-        showNotification('Aucune alerte en attente à envoyer', 'info');
-        return;
-    }
-    
-    // Simulate sending emails (replace with real EmailJS implementation if needed)
-    sendAlertsInBatches(pendingAlerts);
-}
-
-function sendAlertsInBatches(pendingAlerts) {
-    const batchSize = 5;
-    let currentBatch = 0;
-    const totalBatches = Math.ceil(pendingAlerts.length / batchSize);
-    
-    showNotification(`Envoi de ${pendingAlerts.length} alertes en cours...`, 'info');
-    
-    const sendBatch = () => {
-        const start = currentBatch * batchSize;
-        const end = Math.min(start + batchSize, pendingAlerts.length);
-        const batch = pendingAlerts.slice(start, end);
-        
-        batch.forEach(alert => {
-            // Simulate 90% success rate
-            const success = Math.random() > 0.1;
-            
-            const alertIndex = alerts.findIndex(a => a.id === alert.id);
-            if (alertIndex !== -1) {
-                alerts[alertIndex].status = success ? 'sent' : 'error';
-                alerts[alertIndex].sentAt = new Date().toISOString();
-            }
-        });
-        
-        currentBatch++;
-        
-        if (currentBatch < totalBatches) {
-            setTimeout(sendBatch, 1000); // Wait 1 second between batches
-        } else {
-            // All batches sent
-            saveAlertsToStorage();
-            renderAlerts();
-            
-            const sentCount = alerts.filter(a => a.status === 'sent').length;
-            const errorCount = alerts.filter(a => a.status === 'error').length;
-            
-            showNotification(
-                `Envoi terminé: ${sentCount} réussies, ${errorCount} erreurs`,
-                errorCount > 0 ? 'error' : 'success'
-            );
-        }
-    };
-    
-    sendBatch();
-}
-
-function openEmailModal() {
-    const modal = document.getElementById('email-modal');
-    if (modal) {
-        modal.style.display = 'block';
-    }
-}
-
-function closeEmailModal() {
-    const modal = document.getElementById('email-modal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-function handleEmailConfigSubmit(event) {
-    event.preventDefault();
-    
-    emailConfig = {
-        serviceId: document.getElementById('emailjs-service').value,
-        templateId: document.getElementById('emailjs-template').value,
-        userId: document.getElementById('emailjs-user').value,
-        recipientEmail: document.getElementById('recipient-email').value
-    };
-    
-    saveEmailConfig();
-    closeEmailModal();
-    showNotification('Configuration email sauvegardée', 'success');
-}
-
-// ========================================
 // Excel/CSV File Processing
 // ========================================
 let currentFile = null;
@@ -328,10 +198,49 @@ function handleProcessFile() {
     if (fileName.endsWith('.csv')) {
         readCSVFile(currentFile);
     } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
-        showProcessingStatus('Format Excel détecté. Pour traiter les fichiers Excel, vous devez inclure une bibliothèque comme SheetJS (xlsx)', 'error');
+        readExcelFile(currentFile);
     } else {
-        showProcessingStatus('Format de fichier non supporté', 'error');
+        showProcessingStatus('Format de fichier non supporté. Utilisez .xlsx, .xls ou .csv', 'error');
     }
+}
+
+function readExcelFile(file) {
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            
+            // Process all sheets
+            const allData = [];
+            workbook.SheetNames.forEach(sheetName => {
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                
+                jsonData.forEach((row, rowIndex) => {
+                    if (row && row.length > 0) {
+                        allData.push({
+                            sheet: sheetName,
+                            row: rowIndex + 1,
+                            values: row.map(cell => cell ? String(cell) : '')
+                        });
+                    }
+                });
+            });
+            
+            processFileData(allData, file.name);
+        } catch (error) {
+            console.error('Error reading Excel file:', error);
+            showProcessingStatus(`Erreur lors de la lecture du fichier Excel: ${error.message}`, 'error');
+        }
+    };
+    
+    reader.onerror = function() {
+        showProcessingStatus('Erreur lors de la lecture du fichier', 'error');
+    };
+    
+    reader.readAsArrayBuffer(file);
 }
 
 function readCSVFile(file) {
@@ -451,36 +360,6 @@ function loadAlertsFromStorage() {
     } catch (error) {
         console.error('Error loading alerts:', error);
         alerts = [];
-    }
-}
-
-function saveEmailConfig() {
-    try {
-        localStorage.setItem('darty-email-config', JSON.stringify(emailConfig));
-    } catch (error) {
-        console.error('Error saving email config:', error);
-    }
-}
-
-function loadEmailConfig() {
-    try {
-        const stored = localStorage.getItem('darty-email-config');
-        if (stored) {
-            emailConfig = JSON.parse(stored);
-            
-            // Populate form if modal exists
-            const serviceInput = document.getElementById('emailjs-service');
-            const templateInput = document.getElementById('emailjs-template');
-            const userInput = document.getElementById('emailjs-user');
-            const recipientInput = document.getElementById('recipient-email');
-            
-            if (serviceInput && emailConfig.serviceId) serviceInput.value = emailConfig.serviceId;
-            if (templateInput && emailConfig.templateId) templateInput.value = emailConfig.templateId;
-            if (userInput && emailConfig.userId) userInput.value = emailConfig.userId;
-            if (recipientInput && emailConfig.recipientEmail) recipientInput.value = emailConfig.recipientEmail;
-        }
-    } catch (error) {
-        console.error('Error loading email config:', error);
     }
 }
 
