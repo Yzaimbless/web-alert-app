@@ -54,16 +54,16 @@ function setupEventListeners() {
 // ========================================
 function getDartyAlerts() {
     const alertTypes = [
-        { title: 'Stock faible - Réfrigérateurs', priority: 'high', message: 'Stock critique sur les réfrigérateurs modèle XR500' },
-        { title: 'Retard de livraison - TV Samsung', priority: 'high', message: 'Commande #45678 en retard de 3 jours' },
-        { title: 'Maintenance préventive', priority: 'medium', message: 'Maintenance planifiée pour le système de caisse central' },
-        { title: 'Nouvelle promotion - Lave-linge', priority: 'low', message: 'Lancement de la promotion sur les lave-linge Bosch' },
-        { title: 'Réclamation client - SAV', priority: 'high', message: 'Client insatisfait - Dossier #12345 nécessite attention urgente' },
-        { title: 'Inventaire mensuel', priority: 'medium', message: 'Rappel: inventaire à réaliser avant fin de semaine' },
-        { title: 'Formation équipe', priority: 'low', message: 'Session de formation sur nouveaux produits mercredi 14h' },
-        { title: 'Alerte sécurité', priority: 'high', message: 'Mise à jour de sécurité requise pour le système informatique' },
-        { title: 'Commande fournisseur', priority: 'medium', message: 'Validation nécessaire pour commande matériel bureau' },
-        { title: 'Réunion d\'équipe', priority: 'low', message: 'Réunion hebdomadaire prévue lundi 9h' }
+        { title: 'Stock faible - Réfrigérateurs', priority: 'high', message: 'Stock critique sur les réfrigérateurs modèle XR500', statusCode: 70 },
+        { title: 'Retard de livraison - TV Samsung', priority: 'high', message: 'Commande #45678 en retard de 3 jours', statusCode: 70 },
+        { title: 'Maintenance préventive', priority: 'medium', message: 'Maintenance planifiée pour le système de caisse central', statusCode: 30 },
+        { title: 'Nouvelle promotion - Lave-linge', priority: 'low', message: 'Lancement de la promotion sur les lave-linge Bosch', statusCode: 20 },
+        { title: 'Réclamation client - SAV', priority: 'high', message: 'Client insatisfait - Dossier #12345 nécessite attention urgente', statusCode: 70 },
+        { title: 'Inventaire mensuel', priority: 'medium', message: 'Rappel: inventaire à réaliser avant fin de semaine', statusCode: 30 },
+        { title: 'Formation équipe', priority: 'low', message: 'Session de formation sur nouveaux produits mercredi 14h', statusCode: 20 },
+        { title: 'Alerte sécurité', priority: 'high', message: 'Mise à jour de sécurité requise pour le système informatique', statusCode: 70 },
+        { title: 'Commande fournisseur', priority: 'medium', message: 'Validation nécessaire pour commande matériel bureau', statusCode: 30 },
+        { title: 'Réunion d\'équipe', priority: 'low', message: 'Réunion hebdomadaire prévue lundi 9h', statusCode: 20 }
     ];
     
     const generatedAlerts = [];
@@ -75,10 +75,12 @@ function getDartyAlerts() {
         
         generatedAlerts.push({
             id: `alert-${Date.now()}-${i}`,
+            numero: i + 1, // Numéro de l'alerte
             title: `${alertType.title} #${i + 1}`,
             message: alertType.message,
             priority: alertType.priority,
             status: 'pending', // pending, sent, error
+            statusCode: alertType.statusCode, // Code de statut (20, 30, 70)
             timestamp: timestamp.toISOString(),
             sentAt: null
         });
@@ -126,15 +128,30 @@ function createAlertElement(alert) {
         statusText = 'Erreur';
     }
     
+    // Get status code text based on value
+    let statusCodeText = '';
+    if (alert.statusCode === 70) {
+        statusCodeText = 'Critique (70)';
+    } else if (alert.statusCode === 30) {
+        statusCodeText = 'Moyen (30)';
+    } else if (alert.statusCode === 20) {
+        statusCodeText = 'Faible (20)';
+    }
+    
     div.innerHTML = `
         <div class="alert-header">
-            <div class="alert-title">${escapeHtml(alert.title)}</div>
+            <div class="alert-title">
+                <span class="alert-numero">N°${alert.numero || 'N/A'}</span> - ${escapeHtml(alert.title)}
+            </div>
             <div class="alert-status ${statusClass}">${statusText}</div>
         </div>
         <div class="alert-content">
             ${escapeHtml(alert.message)}
         </div>
-        <div class="alert-timestamp">${formattedTime}</div>
+        <div class="alert-footer">
+            <div class="alert-status-code">Statut: ${statusCodeText}</div>
+            <div class="alert-timestamp">${formattedTime}</div>
+        </div>
     `;
     
     return div;
@@ -294,22 +311,31 @@ function processFileData(data, fileName) {
             if (hasKeyword) {
                 alertsFound++;
                 
-                // Determine priority based on keywords
+                // Determine priority and status code based on keywords
                 let priority = 'low';
+                let statusCode = 20;
+                
                 if (lowerValue.includes('urgent') || lowerValue.includes('critique')) {
                     priority = 'high';
+                    statusCode = 70;
                 } else if (lowerValue.includes('important') || lowerValue.includes('alerte')) {
                     priority = 'medium';
+                    statusCode = 30;
                 }
+                
+                // Calculate next numero based on existing alerts
+                const maxNumero = alerts.length > 0 ? Math.max(...alerts.map(a => a.numero || 0)) : 0;
                 
                 // Create new alert
                 const columnLetter = String.fromCharCode(65 + colIndex);
                 newAlerts.push({
                     id: `import-${Date.now()}-${rowIndex}-${colIndex}`,
+                    numero: maxNumero + alertsFound,
                     title: `Import ${fileName} - ${columnLetter}${row.row}`,
                     message: value.substring(0, 100), // Limit message length
                     priority: priority,
                     status: 'pending',
+                    statusCode: statusCode,
                     timestamp: new Date().toISOString(),
                     sentAt: null
                 });

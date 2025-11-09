@@ -311,11 +311,38 @@ body {
     line-height: 1.5;
 }
 
+.alert-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.alert-numero {
+    display: inline-block;
+    background: #d30000;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.alert-status-code {
+    font-size: 12px;
+    font-weight: bold;
+    color: #d30000;
+    padding: 3px 10px;
+    background: rgba(211, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
 .alert-timestamp {
     font-size: 12px;
     color: #999;
-    margin-top: 10px;
-    text-align: right;
 }
 
 /* File Upload */
