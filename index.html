@@ -445,20 +445,62 @@
 
         <!-- Navigation Tabs -->
         <nav class="tab-navigation">
-            <button class="tab-button active" onclick="showTab('status30', event)">Statut 30</button>
+            <button class="tab-button active" onclick="showTab('status20', event)">Statut 20</button>
+            <button class="tab-button" onclick="showTab('status30', event)">Statut 30</button>
+            <button class="tab-button" onclick="showTab('status70', event)">Statut 70</button>
+            <button class="tab-button" onclick="showTab('status80', event)">Statut 80</button>
             <button class="tab-button" onclick="showTab('import', event)">Import Excel</button>
         </nav>
 
         <!-- Content Wrapper -->
         <div class="content-wrapper">
-            <!-- Status 30 Tab -->
-            <div id="status30" class="tab-content active">
+            <!-- Status 20 Tab -->
+            <div id="status20" class="tab-content active">
                 <div class="tab-header">
-                    <h2>Statut des Alertes (30)</h2>
-                    <button id="send-alerts" class="alert-button">Envoyer Alertes Email</button>
+                    <h2>Statut des Alertes (20)</h2>
+                    <button class="alert-button" onclick="generateAlertsForStatus(20)">Générer Alertes Statut 20</button>
                 </div>
                 <div class="alerts-container">
-                    <div class="alerts-grid" id="alerts-grid">
+                    <div class="alerts-grid" id="alerts-grid-20">
+                        <!-- Alerts will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status 30 Tab -->
+            <div id="status30" class="tab-content">
+                <div class="tab-header">
+                    <h2>Statut des Alertes (30)</h2>
+                    <button class="alert-button" onclick="generateAlertsForStatus(30)">Générer Alertes Statut 30</button>
+                </div>
+                <div class="alerts-container">
+                    <div class="alerts-grid" id="alerts-grid-30">
+                        <!-- Alerts will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status 70 Tab -->
+            <div id="status70" class="tab-content">
+                <div class="tab-header">
+                    <h2>Statut des Alertes (70)</h2>
+                    <button class="alert-button" onclick="generateAlertsForStatus(70)">Générer Alertes Statut 70</button>
+                </div>
+                <div class="alerts-container">
+                    <div class="alerts-grid" id="alerts-grid-70">
+                        <!-- Alerts will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status 80 Tab -->
+            <div id="status80" class="tab-content">
+                <div class="tab-header">
+                    <h2>Statut des Alertes (80)</h2>
+                    <button class="alert-button" onclick="generateAlertsForStatus(80)">Générer Alertes Statut 80</button>
+                </div>
+                <div class="alerts-container">
+                    <div class="alerts-grid" id="alerts-grid-80">
                         <!-- Alerts will be generated here -->
                     </div>
                 </div>
