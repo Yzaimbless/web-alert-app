@@ -54,6 +54,7 @@ function setupEventListeners() {
 // ========================================
 function getDartyAlerts() {
     const alertTypes = [
+        { title: 'URGENCE - Panne système critique', priority: 'high', message: 'Système de paiement hors service - intervention immédiate requise', statusCode: 80 },
         { title: 'Stock faible - Réfrigérateurs', priority: 'high', message: 'Stock critique sur les réfrigérateurs modèle XR500', statusCode: 70 },
         { title: 'Retard de livraison - TV Samsung', priority: 'high', message: 'Commande #45678 en retard de 3 jours', statusCode: 70 },
         { title: 'Maintenance préventive', priority: 'medium', message: 'Maintenance planifiée pour le système de caisse central', statusCode: 30 },
@@ -80,7 +81,7 @@ function getDartyAlerts() {
             message: alertType.message,
             priority: alertType.priority,
             status: 'pending', // pending, sent, error
-            statusCode: alertType.statusCode, // Code de statut (20, 30, 70)
+            statusCode: alertType.statusCode, // Code de statut (20, 30, 70, 80)
             timestamp: timestamp.toISOString(),
             sentAt: null
         });
@@ -130,7 +131,9 @@ function createAlertElement(alert) {
     
     // Get status code text based on value
     let statusCodeText = '';
-    if (alert.statusCode === 70) {
+    if (alert.statusCode === 80) {
+        statusCodeText = 'Urgence (80)';
+    } else if (alert.statusCode === 70) {
         statusCodeText = 'Critique (70)';
     } else if (alert.statusCode === 30) {
         statusCodeText = 'Moyen (30)';
@@ -299,7 +302,7 @@ function parseCSV(content) {
 }
 
 function processFileData(data, fileName) {
-    const keywords = ['urgent', 'critique', 'important', 'alerte', 'attention', 'priorité'];
+    const keywords = ['urgence', 'urgent', 'critique', 'important', 'alerte', 'attention', 'priorité', 'emergency'];
     let alertsFound = 0;
     const newAlerts = [];
     
@@ -315,7 +318,10 @@ function processFileData(data, fileName) {
                 let priority = 'low';
                 let statusCode = 20;
                 
-                if (lowerValue.includes('urgent') || lowerValue.includes('critique')) {
+                if (lowerValue.includes('urgence') || lowerValue.includes('emergency')) {
+                    priority = 'high';
+                    statusCode = 80;
+                } else if (lowerValue.includes('urgent') || lowerValue.includes('critique')) {
                     priority = 'high';
                     statusCode = 70;
                 } else if (lowerValue.includes('important') || lowerValue.includes('alerte')) {
