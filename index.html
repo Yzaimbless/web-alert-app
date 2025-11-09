@@ -424,6 +424,111 @@
                 padding: 20px 15px;
             }
         }
+
+        /* Departmental Poles Section */
+        .poles-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            margin: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .poles-title {
+            text-align: center;
+            color: #d30000;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #d30000;
+        }
+
+        .poles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pole-card {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pole-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #d30000, #ff3333);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .pole-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(211, 0, 0, 0.2);
+            border-color: #d30000;
+        }
+
+        .pole-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .pole-icon {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 15px;
+            animation: bounceIcon 2s ease-in-out infinite;
+        }
+
+        @keyframes bounceIcon {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .pole-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #d30000;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .pole-manager {
+            text-align: center;
+            color: #333;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .pole-manager::before {
+            content: '👤';
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .poles-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .poles-section {
+                margin: 10px;
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -442,6 +547,33 @@
                 </div>
             </div>
         </header>
+
+        <!-- Departmental Poles Section -->
+        <section class="poles-section">
+            <h2 class="poles-title">📋 Pôles & Responsables</h2>
+            <div class="poles-grid">
+                <div class="pole-card">
+                    <div class="pole-icon">🎯</div>
+                    <div class="pole-name">Pôle Direction</div>
+                    <div class="pole-manager">Joseph Penot</div>
+                </div>
+                <div class="pole-card">
+                    <div class="pole-icon">📦</div>
+                    <div class="pole-name">Pôle Logistique</div>
+                    <div class="pole-manager">Michael Poitrault</div>
+                </div>
+                <div class="pole-card">
+                    <div class="pole-icon">🔄</div>
+                    <div class="pole-name">Pôle Flux</div>
+                    <div class="pole-manager">Christelle Albors</div>
+                </div>
+                <div class="pole-card">
+                    <div class="pole-icon">🔧</div>
+                    <div class="pole-name">Pôle RMA</div>
+                    <div class="pole-manager">Isabelle Level</div>
+                </div>
+            </div>
+        </section>
 
         <!-- Navigation Tabs -->
         <nav class="tab-navigation">
