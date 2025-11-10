@@ -600,11 +600,25 @@ function setupEventListeners() {
             selectedFile = e.target.files[0];
             if (selectedFile) {
                 fileInfo.style.display = 'block';
-                fileDetails.innerHTML = `
-                    <p><strong>Nom:</strong> ${selectedFile.name}</p>
-                    <p><strong>Taille:</strong> ${(selectedFile.size / 1024).toFixed(2)} KB</p>
-                    <p><strong>Type:</strong> ${selectedFile.type || 'Non détecté'}</p>
-                `;
+                // Clear previous content
+                fileDetails.innerHTML = '';
+                
+                // Create elements safely without innerHTML to avoid XSS
+                const nameP = document.createElement('p');
+                nameP.innerHTML = '<strong>Nom:</strong> ';
+                nameP.appendChild(document.createTextNode(selectedFile.name));
+                
+                const sizeP = document.createElement('p');
+                sizeP.innerHTML = '<strong>Taille:</strong> ';
+                sizeP.appendChild(document.createTextNode(`${(selectedFile.size / 1024).toFixed(2)} KB`));
+                
+                const typeP = document.createElement('p');
+                typeP.innerHTML = '<strong>Type:</strong> ';
+                typeP.appendChild(document.createTextNode(selectedFile.type || 'Non détecté'));
+                
+                fileDetails.appendChild(nameP);
+                fileDetails.appendChild(sizeP);
+                fileDetails.appendChild(typeP);
             }
         });
     }
