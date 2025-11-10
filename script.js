@@ -60,17 +60,17 @@ function setupEventListeners() {
 // ========================================
 function getDartyAlerts() {
     const alertTypes = [
-        { title: 'URGENCE - Panne système critique', priority: 'high', message: 'Système de paiement hors service - intervention immédiate requise', statusCode: 80 },
-        { title: 'Stock faible - Réfrigérateurs', priority: 'high', message: 'Stock critique sur les réfrigérateurs modèle XR500', statusCode: 70 },
-        { title: 'Retard de livraison - TV Samsung', priority: 'high', message: 'Commande #45678 en retard de 3 jours', statusCode: 70 },
-        { title: 'Maintenance préventive', priority: 'medium', message: 'Maintenance planifiée pour le système de caisse central', statusCode: 30 },
-        { title: 'Nouvelle promotion - Lave-linge', priority: 'low', message: 'Lancement de la promotion sur les lave-linge Bosch', statusCode: 20 },
-        { title: 'Réclamation client - SAV', priority: 'high', message: 'Client insatisfait - Dossier #12345 nécessite attention urgente', statusCode: 70 },
-        { title: 'Inventaire mensuel', priority: 'medium', message: 'Rappel: inventaire à réaliser avant fin de semaine', statusCode: 30 },
-        { title: 'Formation équipe', priority: 'low', message: 'Session de formation sur nouveaux produits mercredi 14h', statusCode: 20 },
-        { title: 'Alerte sécurité', priority: 'high', message: 'Mise à jour de sécurité requise pour le système informatique', statusCode: 70 },
-        { title: 'Commande fournisseur', priority: 'medium', message: 'Validation nécessaire pour commande matériel bureau', statusCode: 30 },
-        { title: 'Réunion d\'équipe', priority: 'low', message: 'Réunion hebdomadaire prévue lundi 9h', statusCode: 20 }
+        { title: 'URGENCE - Panne système critique', priority: 'high', message: 'Système de paiement hors service - intervention immédiate requise', statusCode: 80, lieuHs: 'Paris Centre', centreHs: 'Centre IT', ageProduct: '6 mois' },
+        { title: 'Stock faible - Réfrigérateurs', priority: 'high', message: 'Stock critique sur les réfrigérateurs modèle XR500', statusCode: 70, lieuHs: 'Lyon Nord', centreHs: 'Centre Logistique', ageProduct: '3 mois' },
+        { title: 'Retard de livraison - TV Samsung', priority: 'high', message: 'Commande #45678 en retard de 3 jours', statusCode: 70, lieuHs: 'Marseille Est', centreHs: 'Centre Distribution', ageProduct: '1 mois' },
+        { title: 'Maintenance préventive', priority: 'medium', message: 'Maintenance planifiée pour le système de caisse central', statusCode: 30, lieuHs: 'Paris Sud', centreHs: 'Centre Maintenance', ageProduct: '2 ans' },
+        { title: 'Nouvelle promotion - Lave-linge', priority: 'low', message: 'Lancement de la promotion sur les lave-linge Bosch', statusCode: 20, lieuHs: 'Toulouse Ouest', centreHs: 'Centre Commercial', ageProduct: '2 semaines' },
+        { title: 'Réclamation client - SAV', priority: 'high', message: 'Client insatisfait - Dossier #12345 nécessite attention urgente', statusCode: 70, lieuHs: 'Nice Centre', centreHs: 'Centre SAV', ageProduct: '8 mois' },
+        { title: 'Inventaire mensuel', priority: 'medium', message: 'Rappel: inventaire à réaliser avant fin de semaine', statusCode: 30, lieuHs: 'Bordeaux Nord', centreHs: 'Centre Stock', ageProduct: '5 mois' },
+        { title: 'Formation équipe', priority: 'low', message: 'Session de formation sur nouveaux produits mercredi 14h', statusCode: 20, lieuHs: 'Lille Sud', centreHs: 'Centre Formation', ageProduct: 'N/A' },
+        { title: 'Alerte sécurité', priority: 'high', message: 'Mise à jour de sécurité requise pour le système informatique', statusCode: 70, lieuHs: 'Strasbourg Est', centreHs: 'Centre Sécurité', ageProduct: '1 an' },
+        { title: 'Commande fournisseur', priority: 'medium', message: 'Validation nécessaire pour commande matériel bureau', statusCode: 30, lieuHs: 'Nantes Ouest', centreHs: 'Centre Achats', ageProduct: '4 mois' },
+        { title: 'Réunion d\'équipe', priority: 'low', message: 'Réunion hebdomadaire prévue lundi 9h', statusCode: 20, lieuHs: 'Rennes Centre', centreHs: 'Centre Administration', ageProduct: 'N/A' }
     ];
     
     const generatedAlerts = [];
@@ -78,16 +78,19 @@ function getDartyAlerts() {
     
     for (let i = 0; i < 30; i++) {
         const alertType = alertTypes[i % alertTypes.length];
-        const timestamp = new Date(now.getTime() - (i * 3600000)); // Décaler chaque alerte d'1 heure
+        const timestamp = new Date(now.getTime() - (i * 3600000)); // Offset each alert by 1 hour
         
         generatedAlerts.push({
             id: `alert-${Date.now()}-${i}`,
-            numero: i + 1, // Numéro de l'alerte
+            numero: i + 1, // Alert number
             title: `${alertType.title} #${i + 1}`,
             message: alertType.message,
             priority: alertType.priority,
             status: 'pending', // pending, sent, error
-            statusCode: alertType.statusCode, // Code de statut (20, 30, 70, 80)
+            statusCode: alertType.statusCode, // Status code (20, 30, 70, 80)
+            lieuHs: alertType.lieuHs, // Location
+            centreHs: alertType.centreHs, // Center
+            ageProduct: alertType.ageProduct, // Product age
             timestamp: timestamp.toISOString(),
             sentAt: null
         });
@@ -157,6 +160,20 @@ function createAlertElement(alert) {
         </div>
         <div class="alert-content">
             ${escapeHtml(alert.message)}
+        </div>
+        <div class="alert-details">
+            <div class="alert-detail-item">
+                <span class="alert-detail-label">📍 Lieu HS:</span>
+                <span class="alert-detail-value">${escapeHtml(alert.lieuHs || 'N/A')}</span>
+            </div>
+            <div class="alert-detail-item">
+                <span class="alert-detail-label">🏢 Centre HS:</span>
+                <span class="alert-detail-value">${escapeHtml(alert.centreHs || 'N/A')}</span>
+            </div>
+            <div class="alert-detail-item">
+                <span class="alert-detail-label">⏱️ Âge Produit:</span>
+                <span class="alert-detail-value">${escapeHtml(alert.ageProduct || 'N/A')}</span>
+            </div>
         </div>
         <div class="alert-footer">
             <div class="alert-status-code">Statut: ${statusCodeText}</div>
@@ -327,6 +344,10 @@ function processFileData(data, fileName) {
     let alertsFound = 0;
     const newAlerts = [];
     
+    // Default values for imported alerts
+    const locations = ['Paris Centre', 'Lyon Nord', 'Marseille Est', 'Toulouse Ouest', 'Nice Centre', 'Bordeaux Nord', 'Lille Sud'];
+    const centers = ['Centre IT', 'Centre Logistique', 'Centre Distribution', 'Centre SAV', 'Centre Commercial', 'Centre Stock'];
+    
     data.forEach((row, rowIndex) => {
         row.values.forEach((value, colIndex) => {
             const lowerValue = value.toLowerCase();
@@ -363,6 +384,9 @@ function processFileData(data, fileName) {
                     priority: priority,
                     status: 'pending',
                     statusCode: statusCode,
+                    lieuHs: locations[alertsFound % locations.length], // Rotate through locations
+                    centreHs: centers[alertsFound % centers.length], // Rotate through centers
+                    ageProduct: 'Importé', // Mark as imported
                     timestamp: new Date().toISOString(),
                     sentAt: null
                 });
