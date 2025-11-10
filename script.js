@@ -196,20 +196,8 @@ function getStateLabel(state) {
 // Alert Rendering
 // ========================================
 function renderAlerts() {
-    const alertsGrid = document.getElementById('alerts-grid');
-    if (!alertsGrid) return;
-    
-    alertsGrid.innerHTML = '';
-    
-    if (alerts.length === 0) {
-        alertsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666;">Aucune alerte disponible</p>';
-        return;
-    }
-    
-    alerts.forEach(alert => {
-        const alertElement = createAlertElement(alert);
-        alertsGrid.appendChild(alertElement);
-    });
+    // Apply current filter
+    filterByStatus(currentStatusFilter, null);
 }
 
 function createAlertElement(alert) {
@@ -283,6 +271,84 @@ function createAlertElement(alert) {
     `;
     
     return div;
+}
+
+// ========================================
+// Filter and Organize Alerts by Status
+// ========================================
+let currentStatusFilter = 'all';
+
+function filterByStatus(status, event) {
+    currentStatusFilter = status;
+    
+    // Update active button state
+    document.querySelectorAll('.status-filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
+    
+    // Get filtered alerts
+    let filteredAlerts = alerts;
+    if (status !== 'all') {
+        filteredAlerts = alerts.filter(alert => alert.statusCode === parseInt(status));
+    }
+    
+    // Sort by status code (higher priority first) then by timestamp
+    filteredAlerts.sort((a, b) => {
+        if (b.statusCode !== a.statusCode) {
+            return b.statusCode - a.statusCode;
+        }
+        return new Date(b.timestamp) - new Date(a.timestamp);
+    });
+    
+    // Render filtered alerts
+    const alertsGrid = document.getElementById('alerts-grid');
+    if (!alertsGrid) return;
+    
+    alertsGrid.innerHTML = '';
+    
+    if (filteredAlerts.length === 0) {
+        alertsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666;">Aucune alerte pour ce statut</p>';
+        updateAlertCount(0);
+        return;
+    }
+    
+    filteredAlerts.forEach(alert => {
+        const alertElement = createAlertElement(alert);
+        alertsGrid.appendChild(alertElement);
+    });
+    
+    // Update the alert count in header
+    updateAlertCount(filteredAlerts.length);
+    updateStatusCounts();
+}
+
+function updateAlertCount(count) {
+    const countElement = document.getElementById('alert-count');
+    if (countElement) {
+        countElement.textContent = count;
+    }
+}
+
+function updateStatusCounts() {
+    // Count alerts by status code
+    const counts = {
+        all: alerts.length,
+        '80': alerts.filter(a => a.statusCode === 80).length,
+        '70': alerts.filter(a => a.statusCode === 70).length,
+        '30': alerts.filter(a => a.statusCode === 30).length,
+        '20': alerts.filter(a => a.statusCode === 20).length
+    };
+    
+    // Update count badges
+    Object.keys(counts).forEach(status => {
+        const countEl = document.getElementById(`count-${status}`);
+        if (countEl) {
+            countEl.textContent = counts[status];
+        }
+    });
 }
 
 // ========================================

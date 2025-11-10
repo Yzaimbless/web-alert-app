@@ -252,6 +252,71 @@ body {
     transform: translateY(0);
 }
 
+/* Status Filter Container */
+.status-filter-container {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.status-filter-btn {
+    background: white;
+    color: #333;
+    border: 2px solid #dee2e6;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-filter-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.status-filter-btn.active {
+    background: linear-gradient(135deg, #d30000, #ff3333);
+    color: white;
+    border-color: #d30000;
+    box-shadow: 0 4px 15px rgba(211, 0, 0, 0.3);
+}
+
+.status-filter-btn.status-80.active {
+    background: linear-gradient(135deg, #dc3545, #ff5555);
+    border-color: #dc3545;
+}
+
+.status-filter-btn.status-70.active {
+    background: linear-gradient(135deg, #fd7e14, #ff9533);
+    border-color: #fd7e14;
+}
+
+.status-filter-btn.status-30.active {
+    background: linear-gradient(135deg, #ffc107, #ffd454);
+    border-color: #ffc107;
+    color: #333;
+}
+
+.status-filter-btn.status-20.active {
+    background: linear-gradient(135deg, #28a745, #5cb85c);
+    border-color: #28a745;
+}
+
+.status-filter-btn span {
+    font-weight: 700;
+}
+
 /* Alerts Grid */
 .alerts-container {
     background: white;

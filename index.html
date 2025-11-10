@@ -36,9 +36,29 @@
             <!-- Status 30 Tab -->
             <div id="status30" class="tab-content active">
                 <div class="tab-header">
-                    <h2>Statut des Alertes (30)</h2>
+                    <h2>Statut des Alertes (<span id="alert-count">30</span>)</h2>
                     <button class="export-excel-btn" onclick="exportAlertsToExcel()">📥 Exporter en Excel</button>
                 </div>
+                
+                <!-- Filter by Status -->
+                <div class="status-filter-container">
+                    <button class="status-filter-btn active" data-status="all" onclick="filterByStatus('all', event)">
+                        📊 Tous (<span id="count-all">30</span>)
+                    </button>
+                    <button class="status-filter-btn status-80" data-status="80" onclick="filterByStatus('80', event)">
+                        🔴 Urgence 80 (<span id="count-80">0</span>)
+                    </button>
+                    <button class="status-filter-btn status-70" data-status="70" onclick="filterByStatus('70', event)">
+                        🟠 Critique 70 (<span id="count-70">0</span>)
+                    </button>
+                    <button class="status-filter-btn status-30" data-status="30" onclick="filterByStatus('30', event)">
+                        🟡 Moyen 30 (<span id="count-30">0</span>)
+                    </button>
+                    <button class="status-filter-btn status-20" data-status="20" onclick="filterByStatus('20', event)">
+                        🟢 Faible 20 (<span id="count-20">0</span>)
+                    </button>
+                </div>
+                
                 <div class="alerts-container">
                     <div class="alerts-grid" id="alerts-grid">
                         <!-- Alerts will be generated here -->
