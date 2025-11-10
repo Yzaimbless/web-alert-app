@@ -341,7 +341,7 @@ body {
 }
 
 /* Special styling for status 80 (Urgence) */
-.alert-item:has(.alert-status-code:contains("80")) {
+.alert-item[data-status-code="80"] {
     border-width: 3px;
     box-shadow: 0 0 15px rgba(211, 0, 0, 0.5);
 }

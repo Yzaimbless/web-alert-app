@@ -2,12 +2,18 @@
 // Global Variables and Configuration
 // ========================================
 let alerts = [];
+let autoSaveInterval = null;
 
 // ========================================
 // Initialize Application
 // ========================================
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
+});
+
+// Save data before user leaves the page
+window.addEventListener('beforeunload', function() {
+    saveAlertsToStorage();
 });
 
 function initializeApp() {
@@ -27,7 +33,7 @@ function initializeApp() {
     setupEventListeners();
     
     // Auto-save every 30 seconds
-    setInterval(saveAlertsToStorage, 30000);
+    autoSaveInterval = setInterval(saveAlertsToStorage, 30000);
     
     console.log('Application initialized successfully');
 }
@@ -114,6 +120,7 @@ function createAlertElement(alert) {
     const div = document.createElement('div');
     div.className = `alert-item priority-${alert.priority}`;
     div.setAttribute('data-alert-id', alert.id);
+    div.setAttribute('data-status-code', alert.statusCode || ''); // Add data attribute for CSS styling
     
     const timestamp = new Date(alert.timestamp);
     const formattedTime = formatFrenchDateTime(timestamp);
@@ -210,6 +217,13 @@ function handleProcessFile() {
         return;
     }
     
+    // Check file size (10MB limit)
+    const maxFileSize = 10 * 1024 * 1024; // 10MB
+    if (currentFile.size > maxFileSize) {
+        showProcessingStatus('Fichier trop volumineux (limite: 10MB)', 'error');
+        return;
+    }
+    
     showProcessingStatus('Traitement du fichier en cours...', 'info');
     
     // Check file extension
@@ -225,6 +239,13 @@ function handleProcessFile() {
 }
 
 function readExcelFile(file) {
+    // Check if XLSX library is loaded
+    if (typeof XLSX === 'undefined') {
+        console.error('XLSX library not loaded');
+        showProcessingStatus('Bibliothèque Excel non disponible. Veuillez recharger la page.', 'error');
+        return;
+    }
+    
     const reader = new FileReader();
     
     reader.onload = function(e) {
@@ -332,13 +353,13 @@ function processFileData(data, fileName) {
                 // Calculate next numero based on existing alerts
                 const maxNumero = alerts.length > 0 ? Math.max(...alerts.map(a => a.numero || 0)) : 0;
                 
-                // Create new alert
+                // Create new alert with unique ID using counter
                 const columnLetter = String.fromCharCode(65 + colIndex);
                 newAlerts.push({
-                    id: `import-${Date.now()}-${rowIndex}-${colIndex}`,
+                    id: `import-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                     numero: maxNumero + alertsFound,
                     title: `Import ${fileName} - ${columnLetter}${row.row}`,
-                    message: value.substring(0, 100), // Limit message length
+                    message: value.length > 100 ? value.substring(0, 97) + '...' : value, // Limit message length with ellipsis
                     priority: priority,
                     status: 'pending',
                     statusCode: statusCode,
@@ -355,7 +376,7 @@ function processFileData(data, fileName) {
         renderAlerts();
         
         // Switch to Status 30 tab to show new alerts
-        const status30Tab = document.querySelector('[onclick*="status30"]');
+        const status30Tab = document.querySelector('.tab-button[onclick*="status30"]');
         if (status30Tab) {
             status30Tab.click();
         }
@@ -377,9 +398,25 @@ function processFileData(data, fileName) {
 // ========================================
 function saveAlertsToStorage() {
     try {
-        localStorage.setItem('darty-alerts', JSON.stringify(alerts));
+        const alertsData = JSON.stringify(alerts);
+        localStorage.setItem('darty-alerts', alertsData);
     } catch (error) {
         console.error('Error saving alerts:', error);
+        
+        // Check if it's a quota exceeded error
+        if (error.name === 'QuotaExceededError') {
+            // Keep only the most recent 50 alerts
+            alerts = alerts.slice(0, 50);
+            try {
+                localStorage.setItem('darty-alerts', JSON.stringify(alerts));
+                console.log('Reduced alerts to 50 most recent items');
+            } catch (retryError) {
+                console.error('Failed to save even after reducing alerts:', retryError);
+                showNotification('Impossible de sauvegarder les alertes. Stockage local plein.', 'error');
+            }
+        } else {
+            showNotification('Erreur lors de la sauvegarde des alertes.', 'error');
+        }
     }
 }
 
