@@ -60,17 +60,17 @@ function setupEventListeners() {
 // ========================================
 function getDartyAlerts() {
     const alertTypes = [
-        { title: 'URGENCE - Panne système critique', priority: 'high', message: 'Système de paiement hors service - intervention immédiate requise', statusCode: 80, lieuHs: 'Paris Centre', centreHs: 'Centre IT', ageProduct: '6 mois' },
-        { title: 'Stock faible - Réfrigérateurs', priority: 'high', message: 'Stock critique sur les réfrigérateurs modèle XR500', statusCode: 70, lieuHs: 'Lyon Nord', centreHs: 'Centre Logistique', ageProduct: '3 mois' },
-        { title: 'Retard de livraison - TV Samsung', priority: 'high', message: 'Commande #45678 en retard de 3 jours', statusCode: 70, lieuHs: 'Marseille Est', centreHs: 'Centre Distribution', ageProduct: '1 mois' },
-        { title: 'Maintenance préventive', priority: 'medium', message: 'Maintenance planifiée pour le système de caisse central', statusCode: 30, lieuHs: 'Paris Sud', centreHs: 'Centre Maintenance', ageProduct: '2 ans' },
-        { title: 'Nouvelle promotion - Lave-linge', priority: 'low', message: 'Lancement de la promotion sur les lave-linge Bosch', statusCode: 20, lieuHs: 'Toulouse Ouest', centreHs: 'Centre Commercial', ageProduct: '2 semaines' },
-        { title: 'Réclamation client - SAV', priority: 'high', message: 'Client insatisfait - Dossier #12345 nécessite attention urgente', statusCode: 70, lieuHs: 'Nice Centre', centreHs: 'Centre SAV', ageProduct: '8 mois' },
-        { title: 'Inventaire mensuel', priority: 'medium', message: 'Rappel: inventaire à réaliser avant fin de semaine', statusCode: 30, lieuHs: 'Bordeaux Nord', centreHs: 'Centre Stock', ageProduct: '5 mois' },
-        { title: 'Formation équipe', priority: 'low', message: 'Session de formation sur nouveaux produits mercredi 14h', statusCode: 20, lieuHs: 'Lille Sud', centreHs: 'Centre Formation', ageProduct: 'N/A' },
-        { title: 'Alerte sécurité', priority: 'high', message: 'Mise à jour de sécurité requise pour le système informatique', statusCode: 70, lieuHs: 'Strasbourg Est', centreHs: 'Centre Sécurité', ageProduct: '1 an' },
-        { title: 'Commande fournisseur', priority: 'medium', message: 'Validation nécessaire pour commande matériel bureau', statusCode: 30, lieuHs: 'Nantes Ouest', centreHs: 'Centre Achats', ageProduct: '4 mois' },
-        { title: 'Réunion d\'équipe', priority: 'low', message: 'Réunion hebdomadaire prévue lundi 9h', statusCode: 20, lieuHs: 'Rennes Centre', centreHs: 'Centre Administration', ageProduct: 'N/A' }
+        { title: 'URGENCE - Panne système critique', priority: 'high', message: 'Système de paiement hors service - intervention immédiate requise', statusCode: 80, lieuHs: 'Paris Centre', centreHs: 'Centre IT', ageProduct: '6 mois', panne: 'Serveur principal défaillant', tiersFournisseur: 'TechCorp Solutions' },
+        { title: 'Stock faible - Réfrigérateurs', priority: 'high', message: 'Stock critique sur les réfrigérateurs modèle XR500', statusCode: 70, lieuHs: 'Lyon Nord', centreHs: 'Centre Logistique', ageProduct: '3 mois', panne: 'Rupture stock fournisseur', tiersFournisseur: 'Samsung Electronics' },
+        { title: 'Retard de livraison - TV Samsung', priority: 'high', message: 'Commande #45678 en retard de 3 jours', statusCode: 70, lieuHs: 'Marseille Est', centreHs: 'Centre Distribution', ageProduct: '1 mois', panne: 'Retard transporteur', tiersFournisseur: 'DHL Express' },
+        { title: 'Maintenance préventive', priority: 'medium', message: 'Maintenance planifiée pour le système de caisse central', statusCode: 30, lieuHs: 'Paris Sud', centreHs: 'Centre Maintenance', ageProduct: '2 ans', panne: 'Maintenance programmée', tiersFournisseur: 'Système Retail Pro' },
+        { title: 'Nouvelle promotion - Lave-linge', priority: 'low', message: 'Lancement de la promotion sur les lave-linge Bosch', statusCode: 20, lieuHs: 'Toulouse Ouest', centreHs: 'Centre Commercial', ageProduct: '2 semaines', panne: 'N/A', tiersFournisseur: 'Bosch France' },
+        { title: 'Réclamation client - SAV', priority: 'high', message: 'Client insatisfait - Dossier #12345 nécessite attention urgente', statusCode: 70, lieuHs: 'Nice Centre', centreHs: 'Centre SAV', ageProduct: '8 mois', panne: 'Produit défectueux', tiersFournisseur: 'LG Electronics' },
+        { title: 'Inventaire mensuel', priority: 'medium', message: 'Rappel: inventaire à réaliser avant fin de semaine', statusCode: 30, lieuHs: 'Bordeaux Nord', centreHs: 'Centre Stock', ageProduct: '5 mois', panne: 'N/A', tiersFournisseur: 'N/A' },
+        { title: 'Formation équipe', priority: 'low', message: 'Session de formation sur nouveaux produits mercredi 14h', statusCode: 20, lieuHs: 'Lille Sud', centreHs: 'Centre Formation', ageProduct: 'N/A', panne: 'N/A', tiersFournisseur: 'N/A' },
+        { title: 'Alerte sécurité', priority: 'high', message: 'Mise à jour de sécurité requise pour le système informatique', statusCode: 70, lieuHs: 'Strasbourg Est', centreHs: 'Centre Sécurité', ageProduct: '1 an', panne: 'Vulnérabilité détectée', tiersFournisseur: 'Microsoft France' },
+        { title: 'Commande fournisseur', priority: 'medium', message: 'Validation nécessaire pour commande matériel bureau', statusCode: 30, lieuHs: 'Nantes Ouest', centreHs: 'Centre Achats', ageProduct: '4 mois', panne: 'N/A', tiersFournisseur: 'Office Depot' },
+        { title: 'Réunion d\'équipe', priority: 'low', message: 'Réunion hebdomadaire prévue lundi 9h', statusCode: 20, lieuHs: 'Rennes Centre', centreHs: 'Centre Administration', ageProduct: 'N/A', panne: 'N/A', tiersFournisseur: 'N/A' }
     ];
     
     const generatedAlerts = [];
@@ -91,12 +91,105 @@ function getDartyAlerts() {
             lieuHs: alertType.lieuHs, // Location
             centreHs: alertType.centreHs, // Center
             ageProduct: alertType.ageProduct, // Product age
+            panne: alertType.panne, // Failure description
+            tiersFournisseur: alertType.tiersFournisseur, // Third-party supplier
             timestamp: timestamp.toISOString(),
             sentAt: null
         });
     }
     
     return generatedAlerts;
+}
+
+// ========================================
+// Excel Export Functionality
+// ========================================
+function exportAlertsToExcel() {
+    if (typeof XLSX === 'undefined') {
+        alert('La bibliothèque Excel n\'est pas disponible. Veuillez rafraîchir la page.');
+        return;
+    }
+    
+    // Prepare data for Excel export
+    const exportData = alerts.map(alert => ({
+        'Numéro': alert.numero || 'N/A',
+        'Titre': alert.title || 'N/A',
+        'Message': alert.message || 'N/A',
+        'Lieu HS': alert.lieuHs || 'N/A',
+        'Centre HS': alert.centreHs || 'N/A',
+        'Panne': alert.panne || 'N/A',
+        'Tiers Fournisseur': alert.tiersFournisseur || 'N/A',
+        'Statut': alert.statusCode ? `${alert.statusCode} - ${getStatusCodeLabel(alert.statusCode)}` : 'N/A',
+        'Âge Produit': alert.ageProduct || 'N/A',
+        'Priorité': getPriorityLabel(alert.priority),
+        'État': getStateLabel(alert.status),
+        'Date/Heure': formatFrenchDateTime(new Date(alert.timestamp))
+    }));
+    
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    
+    // Set column widths
+    const colWidths = [
+        { wch: 10 },  // Numéro
+        { wch: 35 },  // Titre
+        { wch: 50 },  // Message
+        { wch: 20 },  // Lieu HS
+        { wch: 25 },  // Centre HS
+        { wch: 30 },  // Panne
+        { wch: 30 },  // Tiers Fournisseur
+        { wch: 20 },  // Statut
+        { wch: 15 },  // Âge Produit
+        { wch: 12 },  // Priorité
+        { wch: 12 },  // État
+        { wch: 30 }   // Date/Heure
+    ];
+    ws['!cols'] = colWidths;
+    
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Alertes Darty');
+    
+    // Generate filename with current date
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
+    const filename = `alertes_darty_${dateStr}.xlsx`;
+    
+    // Save file
+    XLSX.writeFile(wb, filename);
+    
+    alert(`Fichier Excel exporté avec succès: ${filename}`);
+}
+
+// Helper function to get status code label
+function getStatusCodeLabel(code) {
+    switch(code) {
+        case 80: return 'Urgence';
+        case 70: return 'Critique';
+        case 30: return 'Moyen';
+        case 20: return 'Faible';
+        default: return 'Inconnu';
+    }
+}
+
+// Helper function to get priority label
+function getPriorityLabel(priority) {
+    switch(priority) {
+        case 'high': return 'Haute';
+        case 'medium': return 'Moyenne';
+        case 'low': return 'Basse';
+        default: return 'Inconnue';
+    }
+}
+
+// Helper function to get state label
+function getStateLabel(state) {
+    switch(state) {
+        case 'pending': return 'En attente';
+        case 'sent': return 'Envoyé';
+        case 'error': return 'Erreur';
+        default: return 'Inconnu';
+    }
 }
 
 // ========================================
@@ -169,6 +262,14 @@ function createAlertElement(alert) {
             <div class="alert-detail-item">
                 <span class="alert-detail-label">🏢 Centre HS:</span>
                 <span class="alert-detail-value">${escapeHtml(alert.centreHs || 'N/A')}</span>
+            </div>
+            <div class="alert-detail-item">
+                <span class="alert-detail-label">⚠️ Panne:</span>
+                <span class="alert-detail-value">${escapeHtml(alert.panne || 'N/A')}</span>
+            </div>
+            <div class="alert-detail-item">
+                <span class="alert-detail-label">🤝 Tiers Fournisseur:</span>
+                <span class="alert-detail-value">${escapeHtml(alert.tiersFournisseur || 'N/A')}</span>
             </div>
             <div class="alert-detail-item">
                 <span class="alert-detail-label">⏱️ Âge Produit:</span>
@@ -347,6 +448,8 @@ function processFileData(data, fileName) {
     // Default values for imported alerts
     const locations = ['Paris Centre', 'Lyon Nord', 'Marseille Est', 'Toulouse Ouest', 'Nice Centre', 'Bordeaux Nord', 'Lille Sud'];
     const centers = ['Centre IT', 'Centre Logistique', 'Centre Distribution', 'Centre SAV', 'Centre Commercial', 'Centre Stock'];
+    const pannes = ['Panne système', 'Problème matériel', 'Erreur logiciel', 'Dysfonctionnement', 'Défaillance technique', 'Incident réseau'];
+    const fournisseurs = ['Fournisseur A', 'Fournisseur B', 'Partenaire C', 'Prestataire D', 'Sous-traitant E', 'Société F'];
     
     data.forEach((row, rowIndex) => {
         row.values.forEach((value, colIndex) => {
@@ -387,6 +490,8 @@ function processFileData(data, fileName) {
                     lieuHs: locations[alertsFound % locations.length], // Rotate through locations
                     centreHs: centers[alertsFound % centers.length], // Rotate through centers
                     ageProduct: 'Importé', // Mark as imported
+                    panne: pannes[alertsFound % pannes.length], // Rotate through pannes
+                    tiersFournisseur: fournisseurs[alertsFound % fournisseurs.length], // Rotate through suppliers
                     timestamp: new Date().toISOString(),
                     sentAt: null
                 });

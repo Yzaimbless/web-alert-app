@@ -225,6 +225,33 @@ body {
     box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
 }
 
+/* Export Excel Button */
+.export-excel-btn {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.export-excel-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
+    background: linear-gradient(135deg, #218838, #1aa179);
+}
+
+.export-excel-btn:active {
+    transform: translateY(0);
+}
+
 /* Alerts Grid */
 .alerts-container {
     background: white;
