@@ -480,7 +480,7 @@ body {
 .footer {
     background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
     color: white;
-    padding: 25px 20px;
+    padding: 35px 20px;
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -493,14 +493,68 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #d30000, #ff3333, #d30000);
-    animation: footerGlow 3s linear infinite;
+    height: 3px;
+    background: linear-gradient(90deg, #d30000, #ff3333, #ff6666, #ff3333, #d30000);
+    background-size: 200% 100%;
+    animation: footerGlow 4s linear infinite;
 }
 
 @keyframes footerGlow {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+/* Animated stars in footer */
+.footer-stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.footer-star {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.8);
+    animation: footerStarTwinkle 3s ease-in-out infinite;
+}
+
+.footer-star:nth-child(1) {
+    top: 20%;
+    left: 15%;
+    animation-delay: 0s;
+    animation-duration: 2.5s;
+}
+
+.footer-star:nth-child(2) {
+    top: 60%;
+    right: 20%;
+    animation-delay: 1s;
+    animation-duration: 3s;
+}
+
+.footer-star:nth-child(3) {
+    top: 40%;
+    left: 70%;
+    animation-delay: 1.5s;
+    animation-duration: 2.8s;
+}
+
+@keyframes footerStarTwinkle {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.5);
+    }
 }
 
 .footer-content {
@@ -508,21 +562,91 @@ body {
     z-index: 2;
 }
 
+/* Center badge with animation */
+.footer-center-info {
+    margin-bottom: 20px;
+}
+
+.center-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #d30000, #ff3333);
+    padding: 12px 24px;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px rgba(211, 0, 0, 0.4);
+    animation: centerBadgePulse 3s ease-in-out infinite;
+    font-weight: bold;
+}
+
+.center-icon {
+    font-size: 1.3rem;
+    animation: centerIconBounce 2s ease-in-out infinite;
+}
+
+.center-text {
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes centerBadgePulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 15px rgba(211, 0, 0, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(211, 0, 0, 0.6);
+    }
+}
+
+@keyframes centerIconBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
 .developer-info {
     margin-bottom: 15px;
+    animation: developerInfoFadeIn 1s ease-in;
+}
+
+@keyframes developerInfoFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .developer-title {
     font-size: 1.1rem;
     font-weight: bold;
     color: #ff3333;
-    margin-bottom: 8px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    animation: titleGlow 2s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+    0%, 100% {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    50% {
+        text-shadow: 2px 2px 8px rgba(255, 51, 51, 0.8);
+    }
 }
 
 .developer-name {
     font-size: 1rem;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -532,6 +656,19 @@ body {
 .developer-name::before {
     content: '👨‍💻';
     font-size: 1.2rem;
+    animation: iconWiggle 3s ease-in-out infinite;
+}
+
+@keyframes iconWiggle {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-10deg);
+    }
+    75% {
+        transform: rotate(10deg);
+    }
 }
 
 .contributor-name {
@@ -541,19 +678,61 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    margin-bottom: 8px;
 }
 
 .contributor-name::before {
     content: '🤝';
     font-size: 1rem;
+    animation: iconWiggle 3s ease-in-out infinite;
+    animation-delay: 0.5s;
+}
+
+/* Social tag styling */
+.social-tag {
+    display: inline-block;
+    font-size: 0.9rem;
+    color: #ffffff;
+    background: linear-gradient(135deg, #ff3333, #d30000);
+    padding: 6px 16px;
+    border-radius: 15px;
+    margin-top: 8px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(211, 0, 0, 0.3);
+    animation: socialTagFloat 3s ease-in-out infinite;
+}
+
+@keyframes socialTagFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+.social-tag::before {
+    content: '📱';
+    margin-right: 6px;
+    animation: iconWiggle 2.5s ease-in-out infinite;
 }
 
 .footer-year {
     font-size: 0.8rem;
     color: #999;
-    margin-top: 15px;
+    margin-top: 20px;
     border-top: 1px solid #444;
     padding-top: 15px;
+    animation: footerYearFadeIn 1.5s ease-in;
+}
+
+@keyframes footerYearFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 /* Modal */
@@ -678,13 +857,22 @@ body {
         text-align: center;
     }
     
-    .developer-name, .contributor-name {
+    .developer-name, .contributor-name, .social-tag {
         flex-direction: column;
         gap: 4px;
     }
     
     .footer {
-        padding: 20px 15px;
+        padding: 25px 15px;
+    }
+    
+    .center-badge {
+        font-size: 0.95rem;
+        padding: 10px 20px;
+    }
+    
+    .center-text {
+        font-size: 1rem;
     }
 }
 
