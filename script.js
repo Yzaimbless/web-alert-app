@@ -506,6 +506,19 @@ function parseCSV(content) {
     return result;
 }
 
+// Convert column index to Excel column name (0 -> A, 25 -> Z, 26 -> AA, etc.)
+function getExcelColumnName(colIndex) {
+    let columnName = '';
+    let num = colIndex;
+    
+    while (num >= 0) {
+        columnName = String.fromCharCode(65 + (num % 26)) + columnName;
+        num = Math.floor(num / 26) - 1;
+    }
+    
+    return columnName;
+}
+
 function processFileData(data, fileName) {
     const keywords = ['urgence', 'urgent', 'critique', 'important', 'alerte', 'attention', 'priorité', 'emergency'];
     let alertsFound = 0;
@@ -517,51 +530,55 @@ function processFileData(data, fileName) {
     const pannes = ['Panne système', 'Problème matériel', 'Erreur logiciel', 'Dysfonctionnement', 'Défaillance technique', 'Incident réseau'];
     const fournisseurs = ['Fournisseur A', 'Fournisseur B', 'Partenaire C', 'Prestataire D', 'Sous-traitant E', 'Société F'];
     
+    // Process ALL rows and ALL columns from ALL sheets (A to ZZ and beyond)
     data.forEach((row, rowIndex) => {
         row.values.forEach((value, colIndex) => {
-            const lowerValue = value.toLowerCase();
-            const hasKeyword = keywords.some(keyword => lowerValue.includes(keyword));
-            
-            if (hasKeyword) {
-                alertsFound++;
-                
-                // Determine priority and status code based on keywords
-                let priority = 'low';
-                let statusCode = 20;
-                
-                if (lowerValue.includes('urgence') || lowerValue.includes('emergency')) {
-                    priority = 'high';
-                    statusCode = 80;
-                } else if (lowerValue.includes('urgent') || lowerValue.includes('critique')) {
-                    priority = 'high';
-                    statusCode = 70;
-                } else if (lowerValue.includes('important') || lowerValue.includes('alerte')) {
-                    priority = 'medium';
-                    statusCode = 30;
-                }
-                
-                // Calculate next numero based on existing alerts
-                const maxNumero = alerts.length > 0 ? Math.max(...alerts.map(a => a.numero || 0)) : 0;
-                
-                // Create new alert with unique ID using counter
-                const columnLetter = String.fromCharCode(65 + colIndex);
-                newAlerts.push({
-                    id: `import-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                    numero: maxNumero + alertsFound,
-                    title: `Import ${fileName} - ${columnLetter}${row.row}`,
-                    message: value.length > 100 ? value.substring(0, 97) + '...' : value, // Limit message length with ellipsis
-                    priority: priority,
-                    status: 'pending',
-                    statusCode: statusCode,
-                    lieuHs: locations[alertsFound % locations.length], // Rotate through locations
-                    centreHs: centers[alertsFound % centers.length], // Rotate through centers
-                    ageProduct: 'Importé', // Mark as imported
-                    panne: pannes[alertsFound % pannes.length], // Rotate through pannes
-                    tiersFournisseur: fournisseurs[alertsFound % fournisseurs.length], // Rotate through suppliers
-                    timestamp: new Date().toISOString(),
-                    sentAt: null
-                });
+            // Skip empty cells
+            if (!value || value.trim() === '') {
+                return;
             }
+            
+            alertsFound++;
+            
+            // Determine priority and status code based on keywords
+            const lowerValue = value.toLowerCase();
+            let priority = 'low';
+            let statusCode = 20;
+            
+            if (lowerValue.includes('urgence') || lowerValue.includes('emergency')) {
+                priority = 'high';
+                statusCode = 80;
+            } else if (lowerValue.includes('urgent') || lowerValue.includes('critique')) {
+                priority = 'high';
+                statusCode = 70;
+            } else if (lowerValue.includes('important') || lowerValue.includes('alerte') || keywords.some(keyword => lowerValue.includes(keyword))) {
+                priority = 'medium';
+                statusCode = 30;
+            }
+            
+            // Calculate next numero based on existing alerts
+            const maxNumero = alerts.length > 0 ? Math.max(...alerts.map(a => a.numero || 0)) : 0;
+            
+            // Convert column index to Excel column letter (A, B, ..., Z, AA, AB, ..., ZZ, etc.)
+            const columnLetter = getExcelColumnName(colIndex);
+            
+            // Create new alert with unique ID for EVERY non-empty cell
+            newAlerts.push({
+                id: `import-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                numero: maxNumero + alertsFound,
+                title: `${row.sheet ? row.sheet + ' - ' : ''}${columnLetter}${row.row}`,
+                message: value.length > 100 ? value.substring(0, 97) + '...' : value, // Limit message length with ellipsis
+                priority: priority,
+                status: 'pending',
+                statusCode: statusCode,
+                lieuHs: locations[alertsFound % locations.length], // Rotate through locations
+                centreHs: centers[alertsFound % centers.length], // Rotate through centers
+                ageProduct: 'Importé', // Mark as imported
+                panne: pannes[alertsFound % pannes.length], // Rotate through pannes
+                tiersFournisseur: fournisseurs[alertsFound % fournisseurs.length], // Rotate through suppliers
+                timestamp: new Date().toISOString(),
+                sentAt: null
+            });
         });
     });
     
@@ -577,12 +594,12 @@ function processFileData(data, fileName) {
         }
         
         showProcessingStatus(
-            `Fichier traité avec succès! ${alertsFound} alertes trouvées et ajoutées.`,
+            `Fichier traité avec succès! ${alertsFound} alertes créées à partir de toutes les lignes, colonnes et feuilles du fichier.`,
             'success'
         );
     } else {
         showProcessingStatus(
-            'Fichier traité mais aucune alerte trouvée (recherche des mots-clés: urgent, critique, important, alerte)',
+            'Fichier traité mais aucune donnée trouvée (les cellules vides sont ignorées)',
             'info'
         );
     }
